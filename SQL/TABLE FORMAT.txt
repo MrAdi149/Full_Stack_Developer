@@ -1,0 +1,56 @@
+In SQL*Plus, to format the output of your query into a proper tabular format, you can use the following steps:
+
+### Step 1: Adjust Output Settings
+Use these commands to set up the display format:
+
+```sql
+SET LINESIZE 200 -- Adjusts the maximum width of a line
+SET PAGESIZE 100 -- Adjusts the number of rows per page
+COLUMN CustomerID FORMAT 99
+COLUMN CustomerName FORMAT A30
+COLUMN ContactName FORMAT A30
+COLUMN Address FORMAT A30
+COLUMN City FORMAT A20
+COLUMN PostalCode FORMAT 99999
+COLUMN Country FORMAT A20
+```
+
+### Step 2: Run Your Query
+Now execute your query as usual:
+```sql
+SELECT * FROM Customers;
+```
+
+### Example Output
+After setting the formatting options, the output will look like this:
+
+```
+  CustomerID CustomerName                   ContactName          Address                       City                 PostalCode Country
+  ---------- ------------------------------ -------------------- ----------------------------- -------------------- ---------- --------------------
+          1 Alfreds Futterkiste             Maria Andres         Obere Str. 57                Berlin                     12209 Germany
+          2 Ana Trujillo Emparedados y helados Ana Trujillo      Avda. de la Constitución 2222 Mexico D.F.                05021 Mexico
+          3 Antonio Moreno Taquería         Antonio Moreno       Mataderos 2312               Mexico D.F.                05023 Mexico
+          4 Around the Horn                 Thomas Hardy         120 Hanover Sq.             London                     09764 UK
+          5 Berglunds snabbköp              Christina Berglund   Berguvsvägen 8               Lulea                      12435 Sweden
+```
+
+### Step 3: Save These Settings (Optional)
+To avoid repeating these steps every time:
+1. Create a script file (e.g., `set_sqlplus_format.sql`):
+   ```sql
+   SET LINESIZE 200
+   SET PAGESIZE 100
+   COLUMN CustomerID FORMAT 99
+   COLUMN CustomerName FORMAT A30
+   COLUMN ContactName FORMAT A30
+   COLUMN Address FORMAT A30
+   COLUMN City FORMAT A20
+   COLUMN PostalCode FORMAT 99999
+   COLUMN Country FORMAT A20
+   ```
+2. Run this script in SQL*Plus before executing queries:
+   ```sql
+   @set_sqlplus_format.sql
+   ```
+
+Let me know if you face any issues!
