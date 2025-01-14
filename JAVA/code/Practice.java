@@ -10,9 +10,6 @@ class Practice{
 		this.age = num;
 	}
 	
-	Practice(int age){
-		this.age = age;
-	}
 	
 	{
 		this.age = 70;

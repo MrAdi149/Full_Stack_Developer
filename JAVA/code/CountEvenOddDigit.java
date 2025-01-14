@@ -12,7 +12,7 @@ class CountEvenOddDigit{
 			int digit = n % 10;
 			if(digit%2==0){
 				System.out.println(digit + " :even digit");
-				count++;
+				evenCount++;
 			}else{
 				System.out.println(digit + " :odd digit");
 				oddCount++;
@@ -23,7 +23,7 @@ class CountEvenOddDigit{
 			int digit = n % 10;
 			if(digit%2==0){
 				System.out.println(digit + " :even digit");
-				count++;
+				evenCount++;
 			}else{
 				System.out.println(digit + " :odd digit");
 				oddCount++;
@@ -31,7 +31,7 @@ class CountEvenOddDigit{
 			n = n / 10;
 		}
 		
-		System.err.println("Even Count: " + count);
+		System.err.println("Even Count: " + evenCount);
 		System.err.println("Odd Count: "+oddCount);
 
 		sc.close();
