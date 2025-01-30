@@ -35,6 +35,4 @@ class StrongNum{
 			System.out.println("not strong");
 		}			
 	}
-	//wajp to find area of rectangle, area of circle, circumference of circle, perimeter of rectangle
-
 }

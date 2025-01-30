@@ -5,7 +5,7 @@ class PerfectSquare{
 		Scanner sc = new Scanner(System.in);
 		System.out.print("Enter a number: ");
 		int n = sc.nextInt();
-		boolean flag = true;
+		boolean flag = false;
 		
 		for(int i = 1; i<=n/2; i++){
 			if(i * i == n){
