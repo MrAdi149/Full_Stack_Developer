@@ -6,7 +6,7 @@ class PrimePalindrome{
 	public static void main(String[] args){
 		Scanner sc = new Scanner(System.in);
 		int n = sc.nextInt();
-		int temp = n;
+		int org = n;
 		int rev = 0;
 		int count = 0;
 		
@@ -22,7 +22,7 @@ class PrimePalindrome{
 				rev = rev * 10 + lastDigit;
 				n = n / 10;
 			}
-			if(rev == temp){
+			if(rev == org){
 				System.out.println("its prime palindrome");
 			}else{
 				System.out.println("its palindrome but not prime");

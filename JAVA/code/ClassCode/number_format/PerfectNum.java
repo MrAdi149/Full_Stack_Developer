@@ -6,12 +6,14 @@ class PerfectNum {
 		System.out.print("enter a number: ");
 		int n = sc.nextInt();
 		int sum = 0;
-		
+		int fact = 1;
 		for(int i = 1; i<=n/2; i++){
 			if(n%i == 0){
-				sum = sum + i;
+				fact = fact * i;
+				sum = sum + fact;
 			}
 		}
+
 				
 		if(n == sum){
 			System.out.println("it is a perfect number");

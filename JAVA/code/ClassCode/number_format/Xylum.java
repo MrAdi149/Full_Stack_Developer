@@ -10,21 +10,24 @@ class Xylum {
 		Scanner sc = new Scanner(System.in);
 		
 		int n = sc.nextInt();
-		int firstDigit = n;
-		int lastDigit = n%10;
+		int temp = n;
+		int temp1 = n;
+		int org = n;
 		int sum = 0;
 		
-		while(firstDigit > 9){
-			firstDigit = firstDigit / 10;
+		while(temp >= 10){
+			temp = temp / 10;
 		}
-		
+
+		int lastDigit = n % 10;
+		int add = temp + lastDigit;
+		System.out.println(n);
 		while(n!=0){
 			int digit = n % 10;
 			sum = sum + digit;
 			n = n / 10;
 		}
-		int midSum = sum - firstDigit - lastDigit;
-		int add = firstDigit + lastDigit;
+		int midSum = sum - add;
 		
 		if(add == midSum){
 			System.out.println("Xylum");
