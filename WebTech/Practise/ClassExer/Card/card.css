@@ -1,0 +1,89 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #E3C60D;
+}
+
+img{
+    border-radius: 9px;
+    height: auto;
+    width: auto;
+}
+
+.card {
+    background: #fff;
+    padding: 20px;
+    cursor: pointer;
+    justify-content: center;
+    border-radius: 12px;
+    width: 350px;
+    border: 1px solid black;
+    border-right: 10px solid black;
+    border-bottom: 10px solid black;
+    display: flex;
+    flex-direction: column;
+    height: 480px;    
+}
+
+.badge {
+    background: #FFC107;
+    padding: 5px 10px;
+    font-size: 12px;
+    margin-top: 10px;
+    font-weight: bold;
+    border-radius: 4px;
+    align-self: flex-start;
+}
+
+.publish-date {
+    color: #666;
+    font-size: 14.4px;
+    margin-top: 15px;
+    margin-bottom: 8px;
+}
+
+.title {
+    font-size: 20px;
+    margin-top: 15px;
+    font-weight: bold;
+    color: #333;
+}
+
+.description {
+    font-size: 14px;
+    margin-top: 15px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.author-class{
+
+    margin-top: 15px;
+    
+    display: flex;
+    align-items: center;
+}
+
+.author-class>.jd{
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+
+.author-class>.author {
+    display: flex;
+    align-items: center;
+    padding-left: 3px;
+    font-weight: bold;
+    color: #333;
+}

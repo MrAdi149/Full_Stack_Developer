@@ -1,0 +1,33 @@
+.grandparent{
+    border: 5px dotted black;
+    width: 500px;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.parent{
+    border: 3px solid brown;
+    width: 400px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+
+}
+
+.parent > div{
+    border : 2px solid blue;
+    width: 200px;
+    height: 100px;
+    position: relative;
+}
+
+.box1{
+    position: fixed;
+    top: 10px;
+    left: 15px;
+}

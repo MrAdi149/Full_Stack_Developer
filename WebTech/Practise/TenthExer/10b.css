@@ -1,0 +1,66 @@
+.profile-card{
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    width: 100%;
+    max-width: 350px;
+    display: block;
+
+}
+
+.first{
+    display: block;
+}
+
+.second{
+    display: block;
+}
+
+.third{
+    display: block;
+}
+
+.profile{
+    width: 50px;
+    border-radius: 50px;
+}
+
+.profile-image{
+    display: inline-block;
+    vertical-align: middle;
+   
+}
+
+.profile-info{
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 10px;
+}
+
+.follow-button{
+    display: inline-block;
+    vertical-align: middle;
+    border-radius: 5px;
+    border-color: blue;
+    background-color: blue;
+    color: white;
+    cursor: pointer;
+    padding: 6px 12px;
+}
+
+.name{
+    margin: 0;
+    font-size: 16px;
+}
+
+.species{
+    margin: 4px 0 0 0;
+    font-size: 14px;
+}
+
+.popular-badge{
+    margin-top: 4px;
+    font-size: 12px;
+    display: inline-block;
+}

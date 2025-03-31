@@ -1,0 +1,14 @@
+.first{
+    padding: 10px;
+    width: 350px;
+    background-color: rgb(33, 33, 33);
+}
+
+.second{
+    color: white;
+    font-weight: bold;
+}
+
+.third{
+    color: rgb(160, 160, 160);
+}

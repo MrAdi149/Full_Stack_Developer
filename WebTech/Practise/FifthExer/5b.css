@@ -1,0 +1,15 @@
+.arial-ex{
+    font-family: Arial;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 40px;
+    line-height: 60px;
+    margin-bottom: 0px;
+}
+
+.sales-ex{
+    color: red;
+    font-style: italic;
+    font-size: 20px;
+    margin-top: 0px;
+}

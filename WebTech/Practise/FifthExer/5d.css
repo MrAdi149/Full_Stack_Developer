@@ -1,0 +1,23 @@
+p{
+    font-family: Arial;
+    margin: 0px;
+}
+
+.first{
+    font-weight: bold;
+    margin-top: 5px;
+    font-size: 40px;
+    
+}
+
+.second{
+    margin-top: 15px;
+    text-align: center;
+    line-height: 20px;
+}
+
+.third{
+    text-align: center;
+    margin-top: 15px;
+    color: blue;
+}

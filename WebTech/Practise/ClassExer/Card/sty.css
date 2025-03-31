@@ -1,0 +1,50 @@
+.parent{
+    width: 500px;
+    height: 500px;
+    border: 2px solid brown;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.first{
+    width: 400px;
+    height: 400px;
+    border: 2px solid brown;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.second{
+    width: 300px;
+    height: 300px;
+    border: 2px solid brown;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.third{
+    width: 200px;
+    height: 200px;
+    border: 2px solid brown;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.fourth{
+    width: 100px;
+    height: 100px;
+    border: 2px solid brown;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+

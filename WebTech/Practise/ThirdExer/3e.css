@@ -1,0 +1,72 @@
+.amazon-link{
+    color:rgb(0,113,133);
+
+    transition: color 0.15s;
+}
+
+.amazon-link:hover{
+    color:rgb(171, 103, 0);
+}
+
+.para{
+    font-weight: bold;
+    font-size: 30px;
+}
+
+.money{
+    color: rgb(0,118,0);
+    font-weight: bold;
+}
+
+.amazon-button{
+    background-color: rgb(255,216,20);
+    border-color: rgb(255,216,20);
+    border-style: solid;
+    height: 27px;
+    width: 140px;
+    font-weight: bold;
+    border-radius: 19px;
+    cursor: pointer;
+
+    transition: background-color 0.15s,
+    border-color 0.15s
+    box-shadow 0.15s;
+}
+
+.amazon-button:hover{
+
+    background-color: rgb(236, 197, 1);
+    border-color: rgb(236, 197, 1);
+    box-shadow: 5px 5px 5px rgba(0,0,0,0.3);
+}
+
+.amazon-button:active{
+    background-color: rgb(195, 162, 0);
+    border-color: rgb(195, 162, 0);
+}
+
+.buy-now{
+    background-color:rgb(255,164,28);
+    border-color: rgb(255,164,28);
+    height: 27px;
+    width: 110px;
+    cursor: pointer;
+    font-weight: bold;
+    border-style: solid;
+    border-radius: 19px;
+    margin-left: 8px;
+
+    transition: all;
+}
+
+.buy-now:hover{
+    background-color:rgb(221, 134, 3);
+    border-color: rgb(221, 134, 3);
+
+    box-shadow: 5px 5px 5px rgba(0,0,0,0.3);
+}
+
+.buy-now:active{
+    background-color:rgb(152, 91, 0);
+    border-color: rgb(152, 91, 0);
+}

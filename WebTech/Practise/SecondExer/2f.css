@@ -1,0 +1,36 @@
+.amazon-link{
+    color:rgb(0,113,133);
+}
+
+.para{
+    font-weight: bold;
+    font-size: 30px;
+}
+
+.money{
+    color: rgb(0,118,0);
+    font-weight: bold;
+}
+
+.amazon-button{
+    background-color: rgb(255,216,20);
+    border-color: rgb(255,216,20);
+    border-style: solid;
+    height: 27px;
+    width: 140px;
+    font-weight: bold;
+    border-radius: 19px;
+    cursor: pointer;
+}
+
+.buy-now{
+    background-color:rgb(255,164,28);
+    border-color: rgb(255,164,28);
+    height: 27px;
+    width: 110px;
+    cursor: pointer;
+    font-weight: bold;
+    border-style: solid;
+    border-radius: 19px;
+    margin-left: 8px;
+}

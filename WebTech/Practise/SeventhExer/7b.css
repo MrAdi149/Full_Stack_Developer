@@ -1,0 +1,21 @@
+.first{
+    object-fit: fill;
+    height: 30px;
+    width: 30px;
+    vertical-align: middle;
+    border-radius: 50%;
+}
+
+.second{
+    margin-top: 0px;
+    vertical-align: middle;
+}
+
+.third{
+    background-color: rgb(11, 167, 251);
+    border-color: rgb(11, 167, 251);
+    border-style: solid;
+    vertical-align: middle;
+    color: white;
+    border-radius: 5px;
+}

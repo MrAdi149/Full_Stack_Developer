@@ -1,0 +1,17 @@
+.google{
+    margin-right: auto;
+    margin-left: auto;
+    display: block;
+}
+
+.first{
+    display: block;
+    width: 540px;
+    margin-right: auto;
+    margin-left: auto;
+    border-radius: 14px;
+    height: 25px;
+    border-color: gray;
+    background-color: white;
+    border-style: solid;
+}

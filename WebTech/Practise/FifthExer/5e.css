@@ -1,0 +1,49 @@
+p{
+    font-family: Arial;
+    margin: 0px;
+}
+
+.first{
+    text-align: center;
+    color: orange;
+    margin-top: 10px;
+}
+
+.second{
+    font-weight: bold;
+    font-size: 25px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.third{
+    text-align: center;
+    font-weight: bold;
+    font-size: 39px;
+}
+
+.fourth{
+    color: gray;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.buy{
+    margin-top: 10px;
+    margin-left: 268px;
+    border-radius: 19px;
+    border-style: solid;
+    color: white;
+    height: 30px;
+    width: 80px;
+    border-color: blue;
+    background-color: blue;
+    cursor: pointer;
+
+    transition: opacity 0.15s;
+}
+
+.buy:hover{
+    opacity: 0.7;
+}
+

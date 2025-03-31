@@ -1,0 +1,62 @@
+.first{
+    font-family: Arial;
+    font-size: 32px;
+    margin-bottom: 14px;
+}
+
+input{
+    margin-top: 5px;
+    display: block;
+    width: 320px;
+    margin-bottom: 8px;
+    border-style: solid;
+    height: 26px;
+    padding-left: 9px;
+    border-radius: 5px;
+    background-color: rgb(200, 200, 200);
+    border-color: rgb(200, 200, 200);
+}
+
+.second {
+    background-color: black;
+    color: white;
+    padding: 10px;
+    margin-top: 13px;
+    border-color: black;
+    border-style: solid;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+
+    transition: opacity 0.15s;
+}
+
+.second:hover {
+    opacity: 0.6;
+}
+
+.second:active {
+    background-color: gray; 
+    color: black;
+}
+
+.third{
+    padding: 10px;
+    margin-top: 13px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    border-color: gray;
+    border-style: solid;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.third:hover{
+    background-color: gray;
+    color: white;
+}
+
+.third:active{
+    background-color: darkgray;
+    color: black;
+}

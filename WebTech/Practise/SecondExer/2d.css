@@ -1,0 +1,22 @@
+.boot-button{
+    background-color: rgb(121, 33, 121);
+    color: white;
+    height: 40px;
+    width: 110px;
+    font-weight: bold;
+    border-style: solid;
+    border-radius: 5px;
+    border-color: rgb(121, 33, 121);
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.download-button{
+    height: 40px;
+    width: 110px;
+    font-weight: bold;
+    border-style: solid;
+    border-radius: 5px;
+    cursor: pointer;
+    border-color: rgb(108, 117, 125)
+}

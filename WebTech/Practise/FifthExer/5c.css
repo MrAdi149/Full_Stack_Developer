@@ -1,0 +1,32 @@
+p{
+    font-family: Verdana;
+    margin: 0px;
+}
+
+.first{
+    font-family: Verdana;
+    font-weight: bold;
+    margin-bottom: 0px;
+}
+
+.second{
+    color: gray;
+    margin-top: 0px;
+}
+
+.third{
+    margin-top: 20px;
+    width: 280px;
+    line-height: 20px;
+}
+
+.start{
+    margin-top: 20px;
+    background-color: green;
+    color: white;
+    border-color: green;
+    border-style: solid;
+    height: 35px;
+    width: 100px;
+    border-radius: 5px;
+}

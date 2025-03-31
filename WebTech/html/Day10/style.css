@@ -1,0 +1,34 @@
+.parent{
+    flex-direction: row;
+    border-color: brown;
+    border-radius: 1px;
+    border-style: solid;
+    width: 500px;
+    height: 500px;
+    align-items: center;
+    justify-content: space-evenly;
+    display: flex;
+}
+
+.but{
+    display: flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.nav-contain{
+    background-color: goldenrod;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: auto;
+    height: 50px;
+}
+
+.first,.second,.third{
+    width: 90px;
+    height: 90px;
+    border-color: brown;
+    border-radius: 1px;
+    border-style: solid;
+}

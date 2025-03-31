@@ -1,0 +1,24 @@
+
+h1{
+    color: red;
+}
+
+h3{
+    color: rgb(255, 0, 149);
+}
+
+.x{
+    color: rgb(0, 238, 255);
+}
+
+#y{
+    color: rgba(17, 126, 17, 0.959);
+}
+
+*{
+    font-size: large;
+}
+
+h1,h2{
+    font-style: italic;
+}

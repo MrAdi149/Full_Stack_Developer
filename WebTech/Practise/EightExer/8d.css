@@ -1,0 +1,33 @@
+input{
+
+    margin-bottom: 8px;
+    margin-right: 8px;
+    border-radius: 4px;
+    height: 28px;
+    padding-left: 9px;
+    border-color: rgb(200, 200, 200);
+    border-style: solid;
+
+}
+
+.third{
+
+    display: block;
+    width: 352px;
+    margin-bottom: 8px;
+
+}
+
+.fourth{
+
+    margin-top: 6px;
+    width: 367px;
+    height: 35px;
+    font-weight: bold;
+    background-color: rgb(0, 102, 255);
+    border-color: rgb(0, 102, 255);
+    border-style: solid;
+    border-radius: 5px;
+    color: white;
+
+}
