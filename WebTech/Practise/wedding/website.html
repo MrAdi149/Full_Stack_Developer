@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Amit & Nisha's Engagement Invitation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* BASIC RESET & LAYOUT */
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+    }
+    
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #fff9f9 0%, #f8e8e8 100%);
+      color: #5c3d35;
+      overflow-x: hidden;
+      height: 100vh;
+      position: relative;
+    }
+    
+    /* BACKGROUND ELEMENTS */
+    .floral-decoration {
+      position: fixed;
+      opacity: 0.1;
+      z-index: -1;
+    }
+    
+    .floral-1 {
+      top: 5%;
+      left: 5%;
+      transform: rotate(-15deg);
+      font-size: 120px;
+      color: #b35e4f;
+    }
+    
+    .floral-2 {
+      bottom: 5%;
+      right: 5%;
+      transform: rotate(15deg);
+      font-size: 150px;
+      color: #a04a3b;
+    }
+    
+    /* BOOK CONTAINER */
+    .book {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      perspective: 2000px;
+    }
+
+    .navigation-box {
+        margin: 25px 0;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+  
+      .nav-button {
+        background: linear-gradient(135deg, #b35e4f, #8a3d2f);
+        color: white;
+        padding: 12px 30px;
+        border-radius: 30px;
+        border: none;
+        cursor: pointer;
+        font-size: 1.1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: transform 0.3s ease;
+        margin: 10px 0;
+      }
+  
+      .nav-button:hover {
+        transform: scale(1.05);
+      }
+  
+      .nav-button i {
+        font-size: 1.3rem;
+      }
+  
+      .location-error {
+        color: #dc3545;
+        margin-top: 10px;
+        font-size: 0.9rem;
+      }
+    
+    /* PAGE STYLING */
+    .page {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 1.5s ease;
+      background: rgba(255, 249, 249, 0.9);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      z-index: 1;
+    }
+    
+    .page.active {
+      opacity: 1;
+      transform: translateY(0);
+      z-index: 2;
+    }
+    
+    /* NAVIGATION CONTROLS */
+    .nav-dots {
+      position: fixed;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      z-index: 100;
+    }
+    
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #d7a59a;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .dot.active {
+      background: #b35e4f;
+      transform: scale(1.3);
+    }
+    
+    /* MUSIC PLAYER */
+    .music-player {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      z-index: 100;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .music-player:hover {
+      transform: scale(1.1);
+    }
+    
+    .music-player i {
+      color: #b35e4f;
+      font-size: 20px;
+    }
+    
+    /* TYPOGRAPHY STYLES */
+    .ganeshay { 
+      font-size: 24px; 
+      color: #555;
+      margin-bottom: 30px;
+      font-weight: 500;
+      letter-spacing: 1px;
+    }
+    
+    .couple-names {
+      font-family: 'Great Vibes', cursive;
+      font-size: 5.5vw;
+      color: #b35e4f;
+      margin: 20px 0;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    .engagement-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5vw;
+      letter-spacing: 8px;
+      color: #a04a3b;
+      margin: 10px 0;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+    
+    .institution {
+      font-size: 20px;
+      margin-top: 30px;
+      color: #666;
+      font-style: italic;
+    }
+    
+    .save-the-date {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      color: #8a3d2f;
+      font-weight: 600;
+      letter-spacing: 3px;
+    }
+    
+    .date-box {
+      background: linear-gradient(135deg, rgba(240, 230, 230, 0.8) 0%, rgba(255, 255, 255, 0.9) 100%);
+      padding: 25px 50px;
+      border-radius: 15px;
+      margin: 30px 0;
+      color: #5c3d35;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(5px);
+    }
+    
+    .date-box .month,
+    .date-box .year { 
+      font-size: 28px; 
+      font-weight: 600; 
+      letter-spacing: 2px;
+    }
+    
+    .date-box .day { 
+      font-size: 5rem; 
+      font-weight: 700; 
+      line-height: 1;
+      margin: 10px 0;
+      color: #b35e4f;
+    }
+    
+    .invitation-text { 
+      max-width: 700px; 
+      line-height: 1.8; 
+      color: #444;
+      padding: 0 20px;
+    }
+    
+    .parents-names { 
+      font-weight: 600; 
+      margin: 25px 0; 
+      color: #333;
+      font-size: 1.2rem;
+    }
+    
+    .couple-name {
+      font-family: 'Great Vibes', cursive;
+      font-size: 3.5rem;
+      margin: 30px 0;
+      color: #b35e4f;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .venue, .contact {
+      font-size: 1.1rem;
+      margin: 15px 0;
+      color: #555;
+    }
+    
+    .venue strong, .contact strong {
+      color: #8a3d2f;
+    }
+
+    /* Falling Flowers Animation */
+    .flower-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 999;
+    }
+
+    .falling-flower {
+        position: absolute;
+        font-size: 24px;
+        color: #b35e4f;
+        opacity: 0.7;
+        animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+        0% {
+            transform: translateY(-10vh) rotate(0deg);
+        }
+        100% {
+            transform: translateY(110vh) rotate(360deg);
+        }
+    }
+
+    /* Add this to existing media query */
+    @media (max-width: 768px) {
+        .falling-flower {
+            font-size: 18px;
+        }
+    }
+    
+    /* ANIMATIONS */
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.3); }
+        100% { transform: scale(1); }
+      }
+    
+    /* RESPONSIVE ADJUSTMENTS */
+    @media (max-width: 768px) {
+      .couple-names {
+        font-size: 3.5rem;
+      }
+      
+      .engagement-title {
+        font-size: 1.8rem;
+        letter-spacing: 5px;
+      }
+      
+      .save-the-date {
+        font-size: 2rem;
+      }
+      
+      .date-box {
+        padding: 20px 30px;
+      }
+      
+      .date-box .day {
+        font-size: 4rem;
+      }
+      
+      .couple-name {
+        font-size: 2.5rem;
+      }
+      
+      .nav-dots {
+        right: 15px;
+      }
+    }
+
+
+    .ganesha-svg {
+        width: 200px;
+        height: 200px;
+        margin: 20px 0;
+        filter: drop-shadow(0 0 10px rgba(179, 94, 79, 0.3));
+    }
+    
+    .ganesha-path {
+        stroke-dasharray: 2000; /* Increased for new complex path */
+        stroke-dashoffset: 2000;
+        animation: draw 4s ease-in-out forwards; /* Adjusted duration for complexity */
+    }
+    
+    .trunk, .ears {
+        stroke-dasharray: 300; /* Adjusted for new paths */
+        stroke-dashoffset: 300;
+        animation: draw 3s ease-in-out forwards;
+        animation-delay: 0.5s;
+    }
+    
+    .tilak {
+        opacity: 0;
+        animation: fadeIn 1s ease-in forwards 2s,
+                   float 3s ease-in-out infinite 2s;
+    }
+    
+    .diya {
+        opacity: 0;
+        animation: fadeIn 1s ease-in forwards 1.5s;
+    }
+    
+    .flame {
+        opacity: 0;
+        animation: fadeIn 1s ease-in forwards 1.5s,
+                   flicker 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes draw {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+      
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+        }
+      }
+      
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+      }
+      
+      @keyframes flicker {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+      }
+      
+      @keyframes glow {
+        0% { filter: drop-shadow(0 0 2px rgba(179, 94, 79, 0.5)); }
+        50% { filter: drop-shadow(0 0 5px rgba(179, 94, 79, 0.8)); }
+        100% { filter: drop-shadow(0 0 2px rgba(179, 94, 79, 0.5)); }
+      }
+      
+      .ganesha-svg {
+        animation: glow 3s ease-in-out infinite 2s;
+      }
+    
+    /* SPECIAL ELEMENTS */
+    .divider {
+      width: 100px;
+      height: 2px;
+      background: linear-gradient(to right, transparent, #b35e4f, transparent);
+      margin: 20px auto;
+    }
+    
+    .heart {
+      color: #e74c3c;
+      margin: 0 5px;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="floral-decoration floral-1">
+    <i class="fas fa-leaf"></i>
+  </div>
+  <div class="floral-decoration floral-2">
+    <i class="fas fa-spa"></i>
+  </div>
+  
+  <div class="music-player" id="musicToggle">
+    <i class="fas fa-music"></i>
+    <audio id="bgMusic" loop>
+      <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+  </div>
+  
+  <!-- NAVIGATION DOTS -->
+  <div class="nav-dots">
+    <div class="dot active" data-page="0"></div>
+    <div class="dot" data-page="1"></div>
+    <div class="dot" data-page="2"></div>
+    <div class="dot" data-page="3"></div>
+  </div>
+  
+  <!-- BOOK CONTAINER -->
+  <div class="book">
+    <!-- PAGE 1 - INVOCATION -->
+    <div class="page active">
+        <div class="ganeshay">Om Shree Ganeshay<br />Namah</div>
+        
+        <!-- Updated Animated Ganesha SVG -->
+        <svg class="ganesha-svg" viewBox="0 0 512 512">
+            <defs>
+              <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#b8860b;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            
+            <!-- Crown -->
+        <path d="M300 50 Q350 60 320 90 M300 50 Q250 60 280 90 L320 90" style="fill: white; stroke: black;"></path>
+        <path d="M250 100 L350 100 Q310 120 250 100" style="fill: white; stroke: black;"></path>
+        <path d="M230 120 L370 120 Q300 140 230 120" style="fill: white; stroke: black;"></path>
+        <path d="M210 140 L390 140 Q300 160 210 140" style="fill: white; stroke: black;"></path>
+        <path d="M300 160 Q280 175 300 190 Q320 175 300 160" style="fill: #ff6b6b; stroke: black;"></path>
+
+        <!-- Face Lines -->
+        <path d="M245 240 L190 190 Q205 150 240 160 M240 160 Q250 160 270 190" style="fill: none; stroke: #b35e4f; stroke-width: 5;"></path>
+        <path d="M270 190 L270 270" style="fill: none; stroke: #b35e4f; stroke-width: 5;"></path>
+        <path d="M355 260 L400 200 Q450 160 355 180 M355 180 Q310 180 330 240 L330 280" style="fill: none; stroke: #b35e4f; stroke-width: 5;"></path>
+
+        <!-- Trunk -->
+        <path d="M270 270 Q400 320 310 360 Q250 390 310 430" style="fill: none; stroke: #b35e4f; stroke-width: 5;"></path>
+        <path d="M330 280 Q420 330 310 390 Q280 400 315 420" style="fill: none; stroke: #b35e4f; stroke-width: 5;"></path>
+
+        <!-- Details -->
+        <path d="M290 440 Q310 450 330 440 M300 450 Q310 460 320 450" style="fill: none; stroke: #b35e4f; stroke-width: 5;"></path>
+        <circle cx="310" cy="465" r="1" style="fill: none; stroke: #ff6b6b; stroke-width: 3;"></circle>
+          </svg>
+      
+        <div style="margin-top: 30px;">
+          <i class="fas fa-chevron-down" style="color: #b35e4f; font-size: 24px; animation: bounce 2s infinite;"></i>
+        </div>
+    </div>
+      
+
+    <!-- PAGE 2 - COUPLE NAMES -->
+    <div class="page">
+      <div class="couple-names">Amit <span class="heart">❤</span> Nisha</div>
+      <div class="engagement-title">ENGAGEMENT</div>
+      <div class="engagement-title">CEREMONY</div>
+      <div class="divider"></div>
+      <div class="institution">Le Gardenia, Patna</div>
+    </div>
+
+    <!-- PAGE 3 - SAVE THE DATE -->
+    <div class="page">
+      <div class="save-the-date">SAVE THE DATE</div>
+      <p style="font-size: 1.2rem; margin-bottom: 20px;">We are thrilled to share that our special day</p>
+      
+      <div class="date-box">
+        <div class="month">MAY</div>
+        <div class="day">5</div>
+        <div style="font-size: 1.2rem; margin: 5px 0;">MONDAY AT 6 PM</div>
+        <div class="year">2025</div>
+      </div>
+      
+      <p style="font-size: 1.2rem; margin-top: 20px;">Mark your calendars & stay tuned for details!</p>
+    </div>
+
+    <!-- PAGE 4 - INVITATION DETAILS -->
+    <div class="page">
+      <div class="invitation-text">
+        <p style="font-size: 1.2rem;">With the blessings of the Almighty and our beloved elders…</p>
+        
+        <div class="parents-names">
+          Mr. Arvind Kumar &amp; Mrs. Gayatri Kumari
+        </div>
+        
+        <p style="font-size: 1.2rem;">invite you to celebrate the Engagement Ceremony of their son</p>
+        
+        <div class="couple-name">
+          Amit Singh<br /><span style="font-size: 1.5rem;">and</span><br />Nisha Singh
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="venue">
+          <strong>Venue:</strong> Le Gardenia, Ranjan Path, Bailey Rd, Patna, Bihar
+        </div>
+
+        <div class="navigation-box">
+            <button class="nav-button" id="getDirections">
+              <i class="fas fa-map-marker-alt"></i>
+              Get Directions
+            </button>
+            <div class="location-error" id="locationError"></div>
+        </div>
+        
+        <div class="contact">
+          <strong>Contact:</strong> 97982‑53608
+        </div>
+
+        <div style="margin-top: 40px;">
+          <p style="font-style: italic;">We look forward to celebrating with you!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // MUSIC PLAYER FUNCTIONALITY
+    const musicToggle = document.getElementById('musicToggle');
+    const bgMusic = document.getElementById('bgMusic');
+    let musicPlaying = false;
+    
+    musicToggle.addEventListener('click', () => {
+      if (musicPlaying) {
+        bgMusic.pause();
+        musicToggle.innerHTML = '<i class="fas fa-music"></i>';
+      } else {
+        bgMusic.play();
+        musicToggle.innerHTML = '<i class="fas fa-pause"></i>';
+      }
+      musicPlaying = !musicPlaying;
+    });
+    
+    // PAGE NAVIGATION
+    const pages = document.querySelectorAll('.page');
+    const dots = document.querySelectorAll('.dot');
+    let currentPage = 0;
+    
+    // Set up dot navigation
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        navigateToPage(index);
+      });
+    });
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        navigateToPage((currentPage + 1) % pages.length);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        navigateToPage((currentPage - 1 + pages.length) % pages.length);
+      }
+    });
+    
+    // Swipe navigation for touch devices
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, false);
+    
+    document.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, false);
+    
+    function handleSwipe() {
+      if (touchEndX < touchStartX - 50) {
+        // Swipe left - next page
+        navigateToPage((currentPage + 1) % pages.length);
+      } else if (touchEndX > touchStartX + 50) {
+        // Swipe right - previous page
+        navigateToPage((currentPage - 1 + pages.length) % pages.length);
+      }
+    }
+    
+    // Auto-advance pages (optional)
+    let autoAdvance = setInterval(() => {
+      navigateToPage((currentPage + 1) % pages.length);
+    }, 8000);
+    
+    // Reset timer on interaction
+    document.addEventListener('click', () => {
+      clearInterval(autoAdvance);
+      autoAdvance = setInterval(() => {
+        navigateToPage((currentPage + 1) % pages.length);
+      }, 8000);
+    });
+    
+    function navigateToPage(index) {
+      // Hide current page
+      pages[currentPage].classList.remove('active');
+      dots[currentPage].classList.remove('active');
+      
+      // Show new page
+      currentPage = index;
+      pages[currentPage].classList.add('active');
+      dots[currentPage].classList.add('active');
+    }
+    
+    // Animation for bounce effect
+    document.addEventListener('DOMContentLoaded', () => {
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes bounce {
+          0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+          40% {transform: translateY(-20px);}
+          60% {transform: translateY(-10px);}
+        }
+      `;
+      document.head.appendChild(style);
+    });
+
+    document.getElementById('getDirections').addEventListener('click', function() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const userLat = position.coords.latitude;
+              const userLng = position.coords.longitude;
+              const destination = 'Le+Gardenia,+Ranjan+Path,+Bailey+Rd,+near+RPS+More,+RPS+More,+Patna,+Bihar+801503';
+              
+              // Open Google Maps with directions
+              window.open(
+                `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLng}&destination=${destination}&travelmode=driving`,
+                '_blank'
+              );
+            },
+            (error) => {
+              document.getElementById('locationError').textContent = 
+                'Unable to retrieve your location. Please enable location services.';
+            }
+          );
+        } else {
+          document.getElementById('locationError').textContent = 
+            'Geolocation is not supported by your browser.';
+        }
+      });
+
+
+      function createFallingFlowers() {
+        const flowerContainer = document.createElement('div');
+        flowerContainer.className = 'flower-container';
+        document.body.appendChild(flowerContainer);
+
+        const flowers = ['fa-leaf', 'fa-spa', 'fa-seedling', 'fa-feather'];
+        const animations = ['fall 8s linear infinite', 'fall 10s linear infinite', 'fall 12s linear infinite'];
+
+        for (let i = 0; i < 15; i++) {
+            const flower = document.createElement('i');
+            flower.className = `fas falling-flower ${flowers[Math.floor(Math.random() * flowers.length)]}`;
+            
+            // Random position and animation
+            flower.style.left = `${Math.random() * 100}%`;
+            flower.style.animation = animations[Math.floor(Math.random() * animations.length)];
+            flower.style.fontSize = `${Math.random() * 20 + 15}px`;
+            flower.style.animationDelay = `${Math.random() * 5}s`;
+            
+            flowerContainer.appendChild(flower);
+        }
+
+        return flowerContainer;
+    }
+
+    // Modify navigateToPage function
+    function navigateToPage(index) {
+        // Remove current flowers
+        const existingFlowers = document.querySelector('.flower-container');
+        if (existingFlowers) existingFlowers.remove();
+
+        // Hide current page
+        pages[currentPage].classList.remove('active');
+        dots[currentPage].classList.remove('active');
+
+        // Show new page
+        currentPage = index;
+        pages[currentPage].classList.add('active');
+        dots[currentPage].classList.add('active');
+
+        // Add flowers for page 3
+        if (currentPage === 2) { // Page index starts at 0 (page 3 is index 2)
+            createFallingFlowers();
+        }
+    }
+  </script>
+</body>
+</html>
