@@ -7,6 +7,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
+import com.jsp.hibernate.CaseStudy.Cart;
 import com.jsp.hibernate.CaseStudy.User;
 
 public class UserDao {
@@ -20,6 +21,10 @@ public class UserDao {
 	public void insert() {
 
 		User user1 = new User();
+		
+		Cart cart = new Cart();
+		cart.setUser(user1);
+		user1.setCart(cart);
 
 		System.out.println("Enter the user name: ");
 		user1.setUsername(sc.next());
@@ -30,6 +35,7 @@ public class UserDao {
 
 		et.begin();
 
+//		em.persist(cart);
 		em.persist(user1);
 
 		et.commit();
@@ -87,6 +93,21 @@ public class UserDao {
 		et.commit();
 		emf.close();
 
+	}
+	
+	public void fetchBehaviour() {
+		
+		System.out.println("Enter the user id to find: ");
+		int userId = sc.nextInt();
+		User user = em.find(User.class, userId);
+		
+		print(user);
+		
+		System.out.println();
+		
+//		System.out.println(user.getCart().getCartId());
+		em.close();
+		emf.close();
 	}
 
 	private void print(User user) {

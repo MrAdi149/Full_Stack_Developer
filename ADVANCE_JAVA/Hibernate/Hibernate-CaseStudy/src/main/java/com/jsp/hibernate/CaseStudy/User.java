@@ -1,9 +1,12 @@
 package com.jsp.hibernate.CaseStudy;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 @Entity
 public class User {
@@ -16,6 +19,18 @@ public class User {
 	private String email;
 	private String password;
 	
+	@OneToOne(mappedBy="user",
+			cascade= {CascadeType.PERSIST,CascadeType.REMOVE},
+			fetch = FetchType.LAZY
+			)
+	private Cart cart;
+	
+	public Cart getCart() {
+		return cart;
+	}
+	public void setCart(Cart cart) {
+		this.cart = cart;
+	}
 	public int getUserId() {
 		return userId;
 	}

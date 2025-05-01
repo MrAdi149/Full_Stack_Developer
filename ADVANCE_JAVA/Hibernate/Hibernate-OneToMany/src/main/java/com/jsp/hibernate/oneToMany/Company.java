@@ -1,4 +1,4 @@
-package com.jsp.hibernate.oneToMany;
+ package com.jsp.hibernate.oneToMany;
 
 import java.util.List;
 

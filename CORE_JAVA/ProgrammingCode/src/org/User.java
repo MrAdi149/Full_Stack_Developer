@@ -7,8 +7,7 @@ public class User extends Iphone {
 		// TODO Auto-generated method stub
 		
 		User u1 = new User();
-		System.out.println(u1.modelName);
-		System.out.println(u1.price);
+		System.out.println(u1);
 
 	}
 

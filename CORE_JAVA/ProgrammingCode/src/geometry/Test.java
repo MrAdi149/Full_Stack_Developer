@@ -12,7 +12,7 @@ public class Test {
 		
 		System.out.println("--------------------");
 		
-		Square s = new Square()
+		Square s = new Square();
 		System.out.println(s.length);
 		s.draw();
 		s.drawSquare();
