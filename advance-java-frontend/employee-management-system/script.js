@@ -1,85 +1,124 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const addEmployeeBtn = document.getElementById('addEmployeeBtn');
-    const employeeModal = document.getElementById('employeeModal');
-    const closeBtn = document.querySelector('.close-btn');
+document.addEventListener('DOMContentLoaded', () => {
+    const employeeTable = document.getElementById('employeeTable');
     const employeeForm = document.getElementById('employeeForm');
-    
-    addEmployeeBtn.addEventListener('click', function() {
-        document.getElementById('modalTitle').textContent = 'Add New Employee';
-        employeeForm.reset();
-        document.getElementById('employeeId').value = '';
-        employeeModal.style.display = 'flex';
-    });
-    
-    closeBtn.addEventListener('click', function() {
-        employeeModal.style.display = 'none';
-    });
-    
-    window.addEventListener('click', function(event) {
-        if (event.target === employeeModal) {
-            employeeModal.style.display = 'none';
-        }
-    });
-    
-    // Form submission
-    employeeForm.addEventListener('submit', function(e) {
+    const apiBaseUrl = 'http://localhost:8080/employees';
+
+    // Load employees on page load
+    loadEmployees();
+
+    // Form submit handler
+    employeeForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        
-        const employeeId = document.getElementById('employeeId').value;
-        const title = document.getElementById('title').value;
-        const email = document.getElementById('email').value;
-        const des = document.getElementById('des').value;
-        const salary = document.getElementById('salary').value;
-        
-        // Here you would typically make an AJAX call to your backend
-        console.log('Submitting employee data:', {
-            id: employeeId,
-            title,
-            email,
-            des,
-            salary
-        });
-        
-        // Close modal after submission
-        employeeModal.style.display = 'none';
-        
-        // Show success message (you would replace this with actual logic)
-        alert('Employee saved successfully!');
-        
-        // In a real app, you would refresh the data or update the table
+        const formData = new FormData(employeeForm);
+        const employee = {
+            title: formData.get('title'),
+            email: formData.get('email'),
+            des: formData.get('des'),
+            salary: formData.get('salary')
+        };
+        createEmployee(employee);
     });
-    
-    // Edit button click handlers
-    document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const employeeId = this.getAttribute('data-id');
-            const row = this.closest('tr');
+
+    async function loadEmployees() {
+        try {
+            const response = await fetch(apiBaseUrl);
+            const result = await response.json();
             
-            document.getElementById('modalTitle').textContent = 'Edit Employee';
-            document.getElementById('employeeId').value = employeeId;
-            document.getElementById('title').value = row.cells[1].textContent;
-            document.getElementById('email').value = row.cells[2].textContent;
-            document.getElementById('des').value = row.cells[3].textContent;
-            document.getElementById('salary').value = row.cells[4].textContent.replace('$', '');
-            
-            employeeModal.style.display = 'flex';
-        });
-    });
-    
-    // Delete button click handlers
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const employeeId = this.getAttribute('data-id');
-            
-            if (confirm('Are you sure you want to delete this employee?')) {
-                // Here you would make an AJAX call to delete the employee
-                console.log('Deleting employee with ID:', employeeId);
-                
-                // In a real app, you would remove the row after successful deletion
-                // this.closest('tr').remove();
-                
-                alert('Employee deleted successfully!');
+            if (result.statusCode === 302) {
+                renderEmployees(result.data);
+            } else {
+                console.error('Unexpected response:', result);
             }
+        } catch (error) {
+            console.error('Error loading employees:', error);
+        }
+    }
+
+    function renderEmployees(employees) {
+        employeeTable.innerHTML = `
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Designation</th>
+                <th>Salary</th>
+                <th>Actions</th>
+            </tr>
+        `;
+
+        employees.forEach(employee => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${employee.title}</td>
+                <td>${employee.email}</td>
+                <td>${employee.des}</td>
+                <td>$${employee.salary}</td>
+                <td>
+                    <button onclick="editEmployee(${employee.id})">Edit</button>
+                    <button onclick="deleteEmployee(${employee.id})">Delete</button>
+                </td>
+            `;
+            employeeTable.appendChild(row);
         });
-    });
+    }
+
+    async function createEmployee(employee) {
+        try {
+            const response = await fetch(apiBaseUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(employee)
+            });
+
+            const result = await response.json();
+            
+            if (result.statusCode === 302) {
+                employeeForm.reset();
+                loadEmployees();
+            } else {
+                console.error('Error creating employee:', result);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    window.editEmployee = async (id) => {
+        try {
+            const response = await fetch(`${apiBaseUrl}/${id}`);
+            const result = await response.json();
+            
+            if (result.statusCode === 302) {
+                const employee = result.data;
+                populateForm(employee);
+            }
+        } catch (error) {
+            console.error('Error fetching employee:', error);
+        }
+    };
+
+    window.deleteEmployee = async (id) => {
+        try {
+            const response = await fetch(`${apiBaseUrl}/${id}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                loadEmployees();
+            } else {
+                console.error('Error deleting employee');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    function populateForm(employee) {
+        document.getElementById('title').value = employee.title;
+        document.getElementById('email').value = employee.email;
+        document.getElementById('des').value = employee.des;
+        document.getElementById('salary').value = employee.salary;
+        document.getElementById('employeeId').value = employee.id;
+    }
 });
