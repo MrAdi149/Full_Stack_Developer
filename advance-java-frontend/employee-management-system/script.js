@@ -1,29 +1,40 @@
 document.addEventListener('DOMContentLoaded', () => {
     const employeeTable = document.getElementById('employeeTable');
     const employeeForm = document.getElementById('employeeForm');
+    const modal = document.getElementById('employeeModal');
     const apiBaseUrl = 'http://localhost:8080/employees';
 
     // Load employees on page load
     loadEmployees();
 
     // Form submit handler
-    employeeForm.addEventListener('submit', (e) => {
+    employeeForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const formData = new FormData(employeeForm);
+        const formData = new FormData();
+        formData.append('title', document.getElementById('title').value);
+        formData.append('email',document.getElementById('email').value);
+        
+        formData.
         const employee = {
             title: formData.get('title'),
             email: formData.get('email'),
             des: formData.get('des'),
             salary: formData.get('salary')
         };
-        createEmployee(employee);
+
+        const employeeId = formData.get('employeeId');
+        if (employeeId) {
+            await updateEmployee(employeeId, employee);
+        } else {
+            await createEmployee(employee);
+        }
     });
 
     async function loadEmployees() {
         try {
             const response = await fetch(apiBaseUrl);
             const result = await response.json();
-            
+
             if (result.statusCode === 302) {
                 renderEmployees(result.data);
             } else {
@@ -72,15 +83,39 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const result = await response.json();
+            console.log(result);
             
-            if (result.statusCode === 302) {
+
+            if (result.statusCode === 201) {
                 employeeForm.reset();
+                modal.style.display = 'none';
                 loadEmployees();
             } else {
                 console.error('Error creating employee:', result);
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error creating employee:', error);
+        }
+    }
+
+    async function updateEmployee(id, employee) {
+        try {
+            const response = await fetch(`${apiBaseUrl}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(employee)
+            });
+
+            const result = await response.json();
+            if (result.statusCode === 200) {
+                employeeForm.reset();
+                modal.style.display = 'none';
+                loadEmployees();
+            } else {
+                console.error('Error updating employee:', result);
+            }
+        } catch (error) {
+            console.error('Error updating employee:', error);
         }
     }
 
@@ -88,10 +123,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(`${apiBaseUrl}/${id}`);
             const result = await response.json();
-            
+
             if (result.statusCode === 302) {
                 const employee = result.data;
                 populateForm(employee);
+            } else {
+                console.error('Employee not found');
             }
         } catch (error) {
             console.error('Error fetching employee:', error);
@@ -99,26 +136,31 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.deleteEmployee = async (id) => {
-        try {
-            const response = await fetch(`${apiBaseUrl}/${id}`, {
-                method: 'DELETE'
-            });
-            
-            if (response.ok) {
-                loadEmployees();
-            } else {
-                console.error('Error deleting employee');
+        if (confirm('Are you sure you want to delete this employee?')) {
+            try {
+                const response = await fetch(`${apiBaseUrl}/${id}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                if (result.statusCode === 200) {
+                    alert('Deleted successfully');
+                    loadEmployees();
+                } else {
+                    console.error('Failed to delete:', result);
+                }
+            } catch (error) {
+                console.error('Error deleting employee:', error);
             }
-        } catch (error) {
-            console.error('Error:', error);
         }
     };
 
     function populateForm(employee) {
+        document.getElementById('modalTitle').textContent = 'Edit Employee';
+        document.getElementById('employeeId').value = employee.id;
         document.getElementById('title').value = employee.title;
         document.getElementById('email').value = employee.email;
         document.getElementById('des').value = employee.des;
         document.getElementById('salary').value = employee.salary;
-        document.getElementById('employeeId').value = employee.id;
+        modal.style.display = 'block';
     }
 });

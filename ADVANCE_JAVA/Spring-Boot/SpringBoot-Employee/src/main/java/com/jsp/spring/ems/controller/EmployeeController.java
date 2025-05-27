@@ -37,7 +37,7 @@ public class EmployeeController {
 		rs.setStatusCode(HttpStatus.CREATED.value());
 		rs.setMessage("Employee added successfully");
 		rs.setData(employee2);
-		
+		System.out.println(employee2);
 		return new ResponseEntity<ResponseStructure<Employee>>(rs,HttpStatus.CREATED);
 	}
 	
