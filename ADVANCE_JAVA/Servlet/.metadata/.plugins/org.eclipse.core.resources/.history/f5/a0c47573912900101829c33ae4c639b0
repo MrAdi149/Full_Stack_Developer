@@ -1,0 +1,11 @@
+package com.jsp.playerdb.dao;
+
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class PlayerDao {
+	 static EntityManagerFactory emf =Persistence.createEntityManagerFactory("mysql-config");
+	 
+	 
+
+}

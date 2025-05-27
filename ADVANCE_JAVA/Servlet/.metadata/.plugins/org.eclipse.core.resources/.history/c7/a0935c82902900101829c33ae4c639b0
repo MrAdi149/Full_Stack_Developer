@@ -1,0 +1,5 @@
+package com.jsp.playerdb.entity;
+
+public class Player {
+
+}

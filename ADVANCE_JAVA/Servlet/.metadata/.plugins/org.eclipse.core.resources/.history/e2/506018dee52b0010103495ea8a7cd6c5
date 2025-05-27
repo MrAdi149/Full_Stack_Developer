@@ -1,0 +1,44 @@
+package com.jsp.servlet.demo;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.GenericServlet;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
+public class DemoServlet extends GenericServlet {
+	
+	
+
+	@Override
+	public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+		int userId = Integer.parseInt(req.getParameter("userId"));
+		String userName = req.getParameter("userName");
+//		
+//		PrintWriter pw = res.getWriter();
+//		pw.print(userId);
+//		pw.print(userName);
+		
+//		req.setAttribute("key1", userId);
+//		req.setAttribute("key2", userName);
+//		RequestDispatcher rd = req.getRequestDispatcher("output.jsp");
+//		rd.forward(req, res);
+		
+		req.setAttribute("key1", userId);
+		req.setAttribute("key2", userName);
+		RequestDispatcher rd = req.getRequestDispatcher("output.jsp");
+		rd.include(req, res);
+		
+		System.out.println("the controll");
+		
+		
+		
+		
+	}
+	
+	
+
+}

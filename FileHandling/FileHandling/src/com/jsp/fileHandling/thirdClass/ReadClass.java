@@ -17,12 +17,10 @@ public class ReadClass {
 		
 		try {
 			fr = new FileReader(file);
-			Integer x = fr.read();
-			
-			while(x != -1) {
-				System.out.print((char)x.intValue());
-				x = fr.read();
-			}
+			int character;
+            while ((character = fr.read()) != -1) {
+                System.out.print((char) character);
+            }
 		} catch (IOException e) {
 			e.printStackTrace();
 		}finally {
@@ -30,7 +28,6 @@ public class ReadClass {
 				try {
 					fr.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

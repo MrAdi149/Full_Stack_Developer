@@ -1,0 +1,34 @@
+package com.jsp.ems.controler;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.jsp.ems.dao.EmployeeDao;
+import com.jsp.ems.entity.Employee;
+
+@WebServlet("/add-emp")
+public class AddEmployee extends HttpServlet{
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String name = req.getParameter("name");
+		String email = req.getParameter("email");
+		String department = req.getParameter("department");
+		int salary = Integer.parseInt(req.getParameter("salary"));
+		
+		Employee employee = new Employee();
+		employee.setName(name);
+		employee.setEmail(email);
+		employee.setDepartment(department);
+		employee.setSalary(salary);
+		
+		EmployeeDao.saveEmployee(employee);
+		
+		resp.sendRedirect("index.jsp");
+	}
+
+}

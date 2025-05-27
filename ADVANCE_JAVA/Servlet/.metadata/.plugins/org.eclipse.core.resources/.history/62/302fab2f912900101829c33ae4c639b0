@@ -1,0 +1,5 @@
+package com.jsp.playerdb.dao;
+
+public class PlayerDao {
+
+}

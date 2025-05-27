@@ -1,0 +1,5 @@
+package com.jsp.servlet.lifecycle;
+
+public class Click {
+
+}

@@ -1,0 +1,5 @@
+package com.jsp.playerdb.controller;
+
+public class AddPlayer {
+
+}

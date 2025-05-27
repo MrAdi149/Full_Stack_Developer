@@ -1,0 +1,33 @@
+package com.jsp.playerdb.controller;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.jsp.playerdb.entity.Player;
+
+@WebServlet("/save-payer")
+public class SaveUpdatePlayerServlet extends HttpServlet{
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		int playerId = Integer.parseInt(req.getParameter("playerId"));
+		String  title = req.getParameter("title");
+		int age = Integer.parseInt(req.getParameter("age"));
+		String nationality = req.getParameter("nationality");
+		String team = req.getParameter("team");
+		int salary = Integer.parseInt(req.getParameter("salary"));
+		
+		Player player = new Player();
+		player.setPlayerId(playerId);
+		player.setTitle(title);
+		player.setAge(age);
+		player.setNatinality(nationality);
+		player.setTeam(team);
+		player.setSalary(salary);
+	}
+
+}

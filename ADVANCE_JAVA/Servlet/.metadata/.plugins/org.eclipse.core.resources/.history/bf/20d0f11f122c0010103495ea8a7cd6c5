@@ -1,0 +1,8 @@
+package com.jsp.ems.controler;
+
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet("/display-all")
+public class DisplayAllEmployeeServelet {
+
+}

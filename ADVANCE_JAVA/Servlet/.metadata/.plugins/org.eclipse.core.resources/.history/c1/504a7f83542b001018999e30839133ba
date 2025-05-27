@@ -1,0 +1,9 @@
+package com.jsp.ems.dao;
+
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class EmployeeDao {
+	EntityManagerFactory emf = Persistence.createEntityManagerFactory("mysql-config");
+
+}
