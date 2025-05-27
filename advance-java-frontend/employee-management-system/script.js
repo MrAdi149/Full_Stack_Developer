@@ -13,8 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData();
         formData.append('title', document.getElementById('title').value);
         formData.append('email',document.getElementById('email').value);
+        formData.append('des', document.getElementById('des').value);
+        formData.append('salary', document.getElementById('salary').value); 
         
-        formData.
         const employee = {
             title: formData.get('title'),
             email: formData.get('email'),
@@ -139,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (confirm('Are you sure you want to delete this employee?')) {
             try {
                 const response = await fetch(`${apiBaseUrl}/${id}`, {
-                    method: 'DELETE'
+                method: 'DELETE'
                 });
                 const result = await response.json();
                 if (result.statusCode === 200) {

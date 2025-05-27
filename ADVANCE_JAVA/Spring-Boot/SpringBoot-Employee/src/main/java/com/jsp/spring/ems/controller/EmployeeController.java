@@ -4,14 +4,15 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jsp.spring.ems.entity.Employee;
@@ -20,6 +21,7 @@ import com.jsp.spring.ems.utility.ResponseStructure;
 
 //@Controller
 //@ResponseBody
+
 @RestController
 @RequestMapping("/employees")
 public class EmployeeController {
@@ -55,8 +57,8 @@ public class EmployeeController {
 	}
 	
 //	@RequestMapping(value="/find-emp-by-id",method=RequestMethod.GET)
-	@GetMapping("/id")
-	public ResponseEntity<ResponseStructure<Employee>> findEmployeeById(int id) {
+	@GetMapping("/{id}")
+	public ResponseEntity<ResponseStructure<Employee>> findEmployeeById(@PathVariable int id) {
 		Employee employee = employeeService.findEmployeeById(id);
 		
 		ResponseStructure<Employee> rs = new ResponseStructure<Employee>();
@@ -68,8 +70,11 @@ public class EmployeeController {
 	}
 	
 //	@RequestMapping(value="/update-by-id",method=RequestMethod.PUT)
-	@PutMapping("/id")
-	public ResponseEntity<ResponseStructure<Employee>> updateEmployeeById(int id, @RequestBody Employee updatedEmployee) {
+	@PutMapping("/{id}")
+	public ResponseEntity<ResponseStructure<Employee>> updateEmployeeById(
+	    @PathVariable int id, 
+	    @RequestBody Employee updatedEmployee
+	) {
 		Employee employee = employeeService.updateEmployeeById(id,updatedEmployee);
 		
 		ResponseStructure<Employee> rs = new ResponseStructure<Employee>();
@@ -82,7 +87,7 @@ public class EmployeeController {
 
 //	@RequestMapping(value="/delete-by-id",method=RequestMethod.DELETE)
 	@DeleteMapping("/id")
-	public ResponseEntity<ResponseStructure<Employee>> deleteEmployeeById(int id) {
+	public ResponseEntity<ResponseStructure<Employee>> deleteEmployeeById(@RequestParam int id) {
 		Employee employee =  employeeService.deleteEmployeeById(id);
 		
 		ResponseStructure<Employee> rs = new ResponseStructure<Employee>();
