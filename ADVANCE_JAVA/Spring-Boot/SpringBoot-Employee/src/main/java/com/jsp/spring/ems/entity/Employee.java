@@ -2,6 +2,8 @@ package com.jsp.spring.ems.entity;
 
 
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,7 +20,28 @@ public class Employee {
 	private String email;
 	private String des;
 	private int salary;
+	private String status;
+	private String department;
+	private LocalDate joinDate;
 	
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public String getDepartment() {
+		return department;
+	}
+	public void setDepartment(String department) {
+		this.department = department;
+	}
+	public LocalDate getJoinDate() {
+		return joinDate;
+	}
+	public void setJoinDate(LocalDate joinDate) {
+		this.joinDate = joinDate;
+	}
 	public int getId() {
 		return id;
 	}

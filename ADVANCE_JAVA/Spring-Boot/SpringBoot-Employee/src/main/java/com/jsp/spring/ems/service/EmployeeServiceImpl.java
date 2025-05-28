@@ -96,4 +96,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 			return employees;
 		}
 	}
+
+	@Override
+	public List<Employee> searchEmployees(String query, String department, String status) {
+	    return employeeRepository.searchEmployeesCustom(
+	        query, 
+	        department, 
+	        status
+	    );
+	}
 }

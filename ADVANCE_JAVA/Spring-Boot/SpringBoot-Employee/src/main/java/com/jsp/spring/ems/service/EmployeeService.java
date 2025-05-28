@@ -20,4 +20,6 @@ public interface EmployeeService {
 
 	List<Employee> findEmployeeBySalaryGreaterThan(int salary);
 
+	List<Employee> searchEmployees(String query, String department, String status);
+
 }

@@ -110,6 +110,7 @@ public class EmployeeController {
 		return new ResponseEntity<ResponseStructure<List<Employee>>>(rs,HttpStatus.FOUND);
 	}
 	
+	@GetMapping("/salary-greater-than")
 	public ResponseEntity<ResponseStructure<List<Employee>>> findEmployeeBySalaryGreaterThan(int salary){
 		List<Employee> employees = employeeService.findEmployeeBySalaryGreaterThan(salary);
 		
@@ -120,5 +121,21 @@ public class EmployeeController {
 		
 		return new ResponseEntity<ResponseStructure<List<Employee>>>(rs,HttpStatus.FOUND);
 	}
+	
+	@GetMapping("/search")
+	public ResponseEntity<ResponseStructure<List<Employee>>> searchEmployees(
+			@RequestParam(required = false) String query,
+			@RequestParam(required = false) String department,
+			@RequestParam(required = false) String status){
+		List<Employee> employees = employeeService.searchEmployees(query,department,status);
+		
+		ResponseStructure<List<Employee>> rs = new ResponseStructure<List<Employee>>();
+		rs.setStatusCode(HttpStatus.OK.value());
+		rs.setMessage("Employee object found successfully!!");
+		rs.setData(employees);
+		
+		return new ResponseEntity<ResponseStructure<List<Employee>>>(rs,HttpStatus.OK);
+	}
+	
 	
 }
