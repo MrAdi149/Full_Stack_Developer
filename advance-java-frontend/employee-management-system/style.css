@@ -500,6 +500,14 @@
             gap: 0.75rem;
         }
 
+        /* Optional: style for the view modal close button */
+#viewEmployeeModal .modal-close {
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+}
+
         /* Form Styles */
         .form-group {
             margin-bottom: 1.25rem;
@@ -627,4 +635,12 @@
 
         .fade-in {
             animation: fadeIn 0.3s ease-in-out;
+        }
+
+        /* Ensure search input text is visible and not overlapped by the icon */
+        .search-box input.form-control {
+            color: #000;
+            background: #fff;
+            padding-left: 2.5rem !important;
+            z-index: 1;
         }

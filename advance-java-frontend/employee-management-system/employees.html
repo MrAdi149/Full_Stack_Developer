@@ -228,6 +228,22 @@
         </div>
     </div>
 
+    <!-- View Employee Modal -->
+    <div class="modal" id="viewEmployeeModal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 class="modal-title">Employee Details</h3>
+                <button class="modal-close" id="closeViewModal">&times;</button>
+            </div>
+            <div class="modal-body" id="viewEmployeeBody">
+                <!-- Employee details will be populated here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary modal-close" id="closeViewModal">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const sidebar = document.getElementById('sidebar');
@@ -380,7 +396,7 @@
                                 <button class="btn btn-sm btn-danger delete-btn" data-id="${employee.id}">
                                     <i class="fas fa-trash"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-primary">
+                                <button class="btn btn-sm btn-outline-primary view-btn" data-id="${employee.id}">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
@@ -389,7 +405,7 @@
                     tbody.appendChild(row);
                 });
 
-                // Attach event listeners to edit and delete buttons
+                // Attach event listeners to edit, delete, and view buttons
                 tbody.querySelectorAll('.edit-btn').forEach(button => {
                     button.addEventListener('click', () => {
                         const id = button.getAttribute('data-id');
@@ -401,6 +417,13 @@
                     button.addEventListener('click', () => {
                         const id = button.getAttribute('data-id');
                         deleteEmployee(id);
+                    });
+                });
+
+                tbody.querySelectorAll('.view-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const id = button.getAttribute('data-id');
+                        viewEmployee(id);
                     });
                 });
             }
@@ -449,6 +472,53 @@
                         console.error('Error deleting employee:', error);
                         alert('An error occurred. Please try again.');
                     }
+                }
+            }
+
+            // View Employee Modal helpers
+            const viewEmployeeModal = document.getElementById('viewEmployeeModal');
+            const viewEmployeeBody = document.getElementById('viewEmployeeBody');
+            const closeViewModal = document.getElementById('closeViewModal');
+
+            function showViewModal() {
+                viewEmployeeModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+            function hideViewModal() {
+                viewEmployeeModal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+            if (closeViewModal) {
+                closeViewModal.addEventListener('click', hideViewModal);
+            }
+            window.addEventListener('click', (e) => {
+                if (e.target === viewEmployeeModal) hideViewModal();
+            });
+
+            // View employee details
+            async function viewEmployee(id) {
+                try {
+                    const response = await fetch(`${apiBaseUrl}/${id}`);
+                    const result = await response.json();
+
+                    if (result.statusCode === 302) {
+                        const employee = result.data;
+                        viewEmployeeBody.innerHTML = `
+                            <p><strong>Full Name:</strong> ${employee.title || ''}</p>
+                            <p><strong>Email:</strong> ${employee.email || ''}</p>
+                            <p><strong>Position:</strong> ${employee.des || ''}</p>
+                            <p><strong>Department:</strong> ${employee.department || ''}</p>
+                            <p><strong>Salary:</strong> $${employee.salary ? employee.salary.toLocaleString() : '0'}</p>
+                            <p><strong>Status:</strong> ${employee.status || ''}</p>
+                            <p><strong>Join Date:</strong> ${employee.joinDate || ''}</p>
+                        `;
+                        showViewModal();
+                    } else {
+                        alert('Employee not found.');
+                    }
+                } catch (error) {
+                    console.error('Error fetching employee:', error);
+                    alert('An error occurred. Please try again.');
                 }
             }
         });
