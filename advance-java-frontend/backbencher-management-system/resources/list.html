@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Resources</title>
+</head>
+<body>
+    <h2>Resources for Lesson</h2>
+    <a th:href="@{'/resources/lesson/' + ${lessonId} + '/add'}">Add Resource</a>
+    <ul>
+        <li th:each="resource : ${resources}">
+            <span th:text="${resource.name}"></span> (<span th:text="${resource.type}"></span>)
+            <a th:href="${resource.url}" target="_blank">Open</a>
+            <a th:href="@{'/resources/' + ${resource.id} + '/edit'}">Edit</a>
+            <form th:action="@{'/resources/' + ${resource.id} + '/delete'}" method="post" style="display:inline;">
+                <button type="submit">Delete</button>
+            </form>
+        </li>
+    </ul>
+    <a th:href="@{'/lessons/' + ${lessonId}}">Back to Lesson</a>
+</body>
+</html>

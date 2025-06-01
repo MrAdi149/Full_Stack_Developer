@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Error</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css"/>
+</head>
+<body>
+    <h2>An error occurred</h2>
+    <p th:text="${message}">Something went wrong. Please try again.</p>
+    <a href="/">Go Home</a>
+</body>
+</html>

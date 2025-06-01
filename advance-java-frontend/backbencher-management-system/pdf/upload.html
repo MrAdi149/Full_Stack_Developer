@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Upload PDF</title>
+</head>
+<body>
+    <h2>Upload PDF</h2>
+    <form th:action="@{/pdf/upload}" method="post" enctype="multipart/form-data">
+        <div>
+            <label>PDF File:</label>
+            <input type="file" name="file" accept="application/pdf" required />
+        </div>
+        <div>
+            <label>Course:</label>
+            <select name="courseId" required>
+                <option th:each="course : ${courses}" th:value="${course.id}" th:text="${course.name}"></option>
+            </select>
+        </div>
+        <button type="submit">Upload</button>
+    </form>
+    <a href="/">Back</a>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css"/>
+</head>
+<body>
+    <h2>Admin Dashboard</h2>
+    <h3>Users</h3>
+    <table border="1">
+        <tr>
+            <th>Username</th><th>Email</th><th>Role</th><th>Action</th>
+        </tr>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.username}"></td>
+            <td th:text="${user.email}"></td>
+            <td th:text="${user.role}"></td>
+            <td>
+                <form th:action="@{'/admin/user/' + ${user.id} + '/role'}" method="post" style="display:inline;">
+                    <select name="role">
+                        <option value="STUDENT">STUDENT</option>
+                        <option value="ADMIN">ADMIN</option>
+                    </select>
+                    <button type="submit">Update Role</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+    <h3>Reported Content</h3>
+    <table border="1">
+        <tr>
+            <th>File Name</th><th>Uploader</th><th>Course</th><th>Action</th>
+        </tr>
+        <tr th:each="pdf : ${reportedContent}">
+            <td th:text="${pdf.fileName}"></td>
+            <td th:text="${pdf.user.username}"></td>
+            <td th:text="${pdf.course.name}"></td>
+            <td>
+                <form th:action="@{'/admin/content/' + ${pdf.id} + '/approve'}" method="post" style="display:inline;">
+                    <button type="submit">Approve</button>
+                </form>
+                <form th:action="@{'/admin/content/' + ${pdf.id} + '/reject'}" method="post" style="display:inline;">
+                    <button type="submit">Reject</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+    <a href="/">Back</a>
+</body>
+</html>

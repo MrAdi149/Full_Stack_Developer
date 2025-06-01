@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Articles</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css"/>
+</head>
+<body>
+    <h2>Articles</h2>
+    <a href="/articles/add">Add Article</a>
+    <ul>
+        <li th:each="article : ${articles}">
+            <a th:href="@{'/articles/' + ${article.id}}" th:text="${article.title}"></a>
+        </li>
+    </ul>
+    <a href="/">Back</a>
+</body>
+</html>

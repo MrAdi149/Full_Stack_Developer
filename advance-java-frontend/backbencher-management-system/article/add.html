@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Article</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css"/>
+</head>
+<body>
+    <h2>Add Article</h2>
+    <form th:action="@{/articles/add}" th:object="${article}" method="post">
+        <div>
+            <label>Title:</label>
+            <input type="text" th:field="*{title}" required />
+        </div>
+        <div>
+            <label>Content:</label>
+            <textarea th:field="*{content}" required></textarea>
+        </div>
+        <div>
+            <label>Course:</label>
+            <select th:field="*{course.id}">
+                <option th:each="course : ${courses}" th:value="${course.id}" th:text="${course.name}"></option>
+            </select>
+        </div>
+        <button type="submit">Add</button>
+    </form>
+    <a href="/articles">Back to Articles</a>
+</body>
+</html>
