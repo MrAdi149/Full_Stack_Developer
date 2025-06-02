@@ -1,0 +1,30 @@
+<!-- Edit Course -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Course</title>
+    <link rel="stylesheet" href="edit.css"/>
+</head>
+<body>
+    <h2>Edit Course</h2>
+    <form action="/courses/1/edit" method="post">
+        <div>
+            <label>Name:</label>
+            <input type="text" name="name" value="Sample Course Name" required />
+        </div>
+        <div>
+            <label>Type:</label>
+            <select name="type">
+                <option value="Type1">Type1</option>
+                <option value="Type2">Type2</option>
+            </select>
+        </div>
+        <div>
+            <label>Description:</label>
+            <textarea name="description">Sample course description goes here.</textarea>
+        </div>
+        <button type="submit">Save</button>
+    </form>
+    <a href="/courses">Back to Courses</a>
+</body>
+</html>

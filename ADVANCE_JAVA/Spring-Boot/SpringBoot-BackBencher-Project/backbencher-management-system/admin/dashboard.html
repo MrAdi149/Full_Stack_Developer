@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css"/>
+</head>
+<body>
+    <h2>Admin Dashboard</h2>
+    <h3>Users</h3>
+    <table border="1">
+        <tr>
+            <th>Username</th><th>Email</th><th>Role</th><th>Action</th>
+        </tr>
+        <!-- Example static row, replace with server-side or JS rendering -->
+        <tr>
+            <td>exampleuser</td>
+            <td>user@example.com</td>
+            <td>STUDENT</td>
+            <td>
+                <form action="/admin/user/1/role" method="post" style="display:inline;">
+                    <select name="role">
+                        <option value="STUDENT">STUDENT</option>
+                        <option value="ADMIN">ADMIN</option>
+                    </select>
+                    <button type="submit">Update Role</button>
+                </form>
+            </td>
+        </tr>
+        <!-- Add more rows as needed -->
+    </table>
+    <h3>Reported Content</h3>
+    <table border="1">
+        <tr>
+            <th>File Name</th><th>Uploader</th><th>Course</th><th>Action</th>
+        </tr>
+        <!-- Example static row, replace with server-side or JS rendering -->
+        <tr>
+            <td>example.pdf</td>
+            <td>exampleuser</td>
+            <td>Example Course</td>
+            <td>
+                <form action="/admin/content/1/approve" method="post" style="display:inline;">
+                    <button type="submit">Approve</button>
+                </form>
+                <form action="/admin/content/1/reject" method="post" style="display:inline;">
+                    <button type="submit">Reject</button>
+                </form>
+            </td>
+        </tr>
+        <!-- Add more rows as needed -->
+    </table>
+    <a href="/">Back</a>
+</body>
+</html>

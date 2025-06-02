@@ -24,6 +24,6 @@ public class SearchService {
     }
 
     public List<PdfUpload> searchPdfs(String query) {
-        return pdfUploadRepository.fullTextSearchJpa(query);
+        return pdfUploadRepository.fullTextSearch(query);
     }
 }

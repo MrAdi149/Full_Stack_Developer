@@ -7,10 +7,14 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
@@ -29,12 +33,20 @@ public class User {
     
     @Column(nullable = false)
     private String password;
+
+    private String firstName;
+    private String lastName;
+
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
+    
     
     @Column(nullable = false)
-    private String role = "STUDENT";
-    
+    private Boolean active = true;
+
     private LocalDateTime createdAt = LocalDateTime.now();
-    
+    private LocalDateTime updatedAt;
+
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Article> articles = new ArrayList<>();
     
@@ -43,76 +55,125 @@ public class User {
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Rating> ratings = new ArrayList<>();
+    
+    @PrePersist
+    public void prePersist() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (active == null) {
+            active = true;
+        }
+    }
 
-	public Long getId() {
-		return id;
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    // Getters and setters
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getFirstName() {
+		return firstName;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
 	}
 
-	public String getUsername() {
-		return username;
+	public String getLastName() {
+		return lastName;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getRole() {
+	public Role getRole() {
 		return role;
 	}
 
-	public void setRole(String role) {
+	public void setRole(Role role) {
 		this.role = role;
 	}
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+	public Boolean getActive() {
+        return active;
+    }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
 
-	public List<Article> getArticles() {
-		return articles;
-	}
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-	public void setArticles(List<Article> articles) {
-		this.articles = articles;
-	}
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
-	public List<PdfUpload> getPdfUploads() {
-		return pdfUploads;
-	}
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 
-	public void setPdfUploads(List<PdfUpload> pdfUploads) {
-		this.pdfUploads = pdfUploads;
-	}
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
-	public List<Rating> getRatings() {
-		return ratings;
-	}
+    public List<Article> getArticles() {
+        return articles;
+    }
 
-	public void setRatings(List<Rating> ratings) {
-		this.ratings = ratings;
-	}
+    public void setArticles(List<Article> articles) {
+        this.articles = articles;
+    }
+
+    public List<PdfUpload> getPdfUploads() {
+        return pdfUploads;
+    }
+
+    public void setPdfUploads(List<PdfUpload> pdfUploads) {
+        this.pdfUploads = pdfUploads;
+    }
+
+    public List<Rating> getRatings() {
+        return ratings;
+    }
+
+    public void setRatings(List<Rating> ratings) {
+        this.ratings = ratings;
+    }
 }

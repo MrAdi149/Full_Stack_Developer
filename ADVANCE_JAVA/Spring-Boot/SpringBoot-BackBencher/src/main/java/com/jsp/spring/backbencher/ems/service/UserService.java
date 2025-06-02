@@ -1,6 +1,7 @@
 package com.jsp.spring.backbencher.ems.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,12 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    // Simple save method for basic user creation
+    public void saveUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
+    }
+
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -28,13 +35,61 @@ public class UserService {
     }
 
     public boolean usernameExists(String username) {
-        return userRepository.findAll().stream().anyMatch(u -> u.getUsername().equals(username));
+        return userRepository.findByUsername(username).isPresent();
     }
 
     public User registerUser(User user) {
+        if (emailExists(user.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+        if (usernameExists(user.getUsername())) {
+            throw new RuntimeException("Username already exists");
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("STUDENT");
         user.setCreatedAt(LocalDateTime.now());
+        user.setActive(true);
+        return userRepository.save(user);
+    }
+
+    public User updateUser(User user) {
+        Optional<User> existingUser = userRepository.findById(user.getId());
+        if (existingUser.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        } else {
+            user.setPassword(existingUser.get().getPassword());
+        }
+        user.setUpdatedAt(LocalDateTime.now());
+        return userRepository.save(user);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public Optional<User> getUserById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    public User deactivateUser(Long id) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setActive(false);
+        user.setUpdatedAt(LocalDateTime.now());
+        return userRepository.save(user);
+    }
+
+    public User activateUser(Long id) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setActive(true);
+        user.setUpdatedAt(LocalDateTime.now());
         return userRepository.save(user);
     }
 }

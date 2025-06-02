@@ -29,7 +29,6 @@ public class AdminService {
 
     public void updateUserRole(Long id, String role) {
         User user = userRepository.findById(id).orElseThrow();
-        user.setRole(role);
         userRepository.save(user);
     }
 
