@@ -3,8 +3,13 @@ package com.jsp.spring.backbencher.ems.controller;
 import java.security.Principal;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.jsp.spring.backbencher.ems.entity.Article;
 import com.jsp.spring.backbencher.ems.entity.Comment;
@@ -13,9 +18,9 @@ import com.jsp.spring.backbencher.ems.service.ArticleService;
 import com.jsp.spring.backbencher.ems.service.CommentService;
 import com.jsp.spring.backbencher.ems.service.UserService;
 
-@Controller
-@RequestMapping("/comments")
-public class CommentController {
+@RestController
+@RequestMapping("/api/comments")
+public class CommentRestController {
 
     @Autowired
     private CommentService commentService;
@@ -26,11 +31,11 @@ public class CommentController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/add")
-    public String addComment(@RequestParam Long articleId,
-                             @RequestParam String content,
-                             @RequestParam(required = false) Long parentCommentId,
-                             Principal principal) {
+    @PostMapping
+    public ResponseEntity<Comment> addComment(@RequestParam Long articleId,
+                                              @RequestParam String content,
+                                              @RequestParam(required = false) Long parentCommentId,
+                                              Principal principal) {
         User user = userService.findByEmail(principal.getName())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         Article article = articleService.getArticleById(articleId)
@@ -47,13 +52,13 @@ public class CommentController {
             comment.setParentComment(parent);
         }
 
-        commentService.saveComment(comment);
-        return "redirect:/articles/" + articleId;
+        Comment saved = commentService.saveComment(comment);
+        return ResponseEntity.ok(saved);
     }
 
-    @PostMapping("/{id}/delete")
-    public String deleteComment(@PathVariable Long id, @RequestParam Long articleId) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteComment(@PathVariable Long id) {
         commentService.deleteComment(id);
-        return "redirect:/articles/" + articleId;
+        return ResponseEntity.ok().build();
     }
 }

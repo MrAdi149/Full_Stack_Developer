@@ -6,16 +6,7 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "courses")
@@ -26,11 +17,10 @@ public class Course {
     private Long id;
 
     @Column(nullable = false, length = 100)
-    private String name;
+    private String title; // Changed from 'name' to 'title'
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private CourseType type; // JFS or PFS
+    private CourseType type; // Optional, remove nullable = false
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -38,7 +28,6 @@ public class Course {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    // Relationships
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Article> articles = new ArrayList<>();
 
@@ -48,78 +37,76 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Lesson> lessons = new ArrayList<>();
 
-    // Enum for course type
     public enum CourseType {
         JFS, PFS
     }
 
-    // Helper methods
-    public void addArticle(Article article) {
-        articles.add(article);
-        article.setCourse(this);
+    public Course() {
     }
 
-	public Long getId() {
-		return id;
-	}
+    // Getters and setters
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public CourseType getType() {
-		return type;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public void setType(CourseType type) {
-		this.type = type;
-	}
+    public CourseType getType() {
+        return type;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public void setType(CourseType type) {
+        this.type = type;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-	public List<Article> getArticles() {
-		return articles;
-	}
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
-	public void setArticles(List<Article> articles) {
-		this.articles = articles;
-	}
+    public List<Article> getArticles() {
+        return articles;
+    }
 
-	public List<PdfUpload> getPdfUploads() {
-		return pdfUploads;
-	}
+    public void setArticles(List<Article> articles) {
+        this.articles = articles;
+    }
 
-	public void setPdfUploads(List<PdfUpload> pdfUploads) {
-		this.pdfUploads = pdfUploads;
-	}
+    public List<PdfUpload> getPdfUploads() {
+        return pdfUploads;
+    }
 
-	public List<Lesson> getLessons() {
-		return lessons;
-	}
+    public void setPdfUploads(List<PdfUpload> pdfUploads) {
+        this.pdfUploads = pdfUploads;
+    }
 
-	public void setLessons(List<Lesson> lessons) {
-		this.lessons = lessons;
-	}    
+    public List<Lesson> getLessons() {
+        return lessons;
+    }
+
+    public void setLessons(List<Lesson> lessons) {
+        this.lessons = lessons;
+    }
 }

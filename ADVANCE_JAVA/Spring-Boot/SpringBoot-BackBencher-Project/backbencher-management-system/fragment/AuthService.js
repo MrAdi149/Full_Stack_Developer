@@ -1,67 +1,97 @@
-class AuthService {
+export default class AuthService {
     constructor() {
-        this.baseUrl = 'http://localhost:8080/api/auth';
+        this.baseUrl = 'http://localhost:8080/api';
+        this.token = localStorage.getItem('token');
     }
 
     async login(username, password) {
     try {
-        const response = await fetch(`${this.baseUrl}/login`, {
+        const response = await fetch(`${this.baseUrl}/auth/login`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
         });
-
+        
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Login failed');
+            const error = await response.json();
+            throw new Error(error.message || 'Login failed');
         }
-
+        
         const data = await response.json();
-        localStorage.setItem('token', data.token);
+        if (data.token) {
+            this.token = data.token;
+            localStorage.setItem('token', data.token);
+            this.setUserData(data);
+        }
         return data;
     } catch (error) {
-        console.error('Login error:', error);
-        throw error;
+        throw new Error(error.message || 'Login failed');
     }
 }
 
- 
+setUserData(data) {
+    localStorage.setItem('user', JSON.stringify({
+        username: data.username,
+        role: data.role,
+        id: data.id
+    }));
+}
+
+getUserData() {
+    const userData = localStorage.getItem('user');
+    return userData ? JSON.parse(userData) : null;
+}
+
 
     async register(userData) {
         try {
-            const response = await fetch(`${this.baseUrl}/register`, {
+            const response = await fetch(`${this.baseUrl}/auth/register`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(userData),
-                credentials: 'include'
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
             });
-
-            const data = await response.text();
             
             if (!response.ok) {
-                if (response.status === 403) {
-                    throw new Error('Registration forbidden. Please check your inputs.');
-                }
-                if (response.status === 409) {
-                    throw new Error(data || 'User already exists');
-                }
-                throw new Error(data || 'Registration failed');
+                const error = await response.text();
+                throw new Error(error || 'Registration failed');
             }
-
-            return JSON.parse(data);
+            
+            return response.json();
         } catch (error) {
-            console.error('Registration error:', error);
-            throw error;
+            throw new Error(error.message || 'Registration failed');
         }
+    }
+
+    getAuthHeader() {
+        return {
+            'Authorization': `Bearer ${this.token}`,
+            'Content-Type': 'application/json'
+        };
     }
 
     logout() {
         localStorage.removeItem('token');
-        window.location.href = '/login.html';
+        localStorage.removeItem('role');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('username');
+        this.token = null;
+        // Update this path to point to login.html in the fragment folder
+        window.location.href = './login.html';
+    }
+
+    isAuthenticated() {
+        return !!this.token;
+    }
+
+    getRole() {
+        return localStorage.getItem('role');
+    }
+
+    getUserId() {
+        return localStorage.getItem('userId');
+    }
+
+    getUsername() {
+        return localStorage.getItem('username');
     }
 }

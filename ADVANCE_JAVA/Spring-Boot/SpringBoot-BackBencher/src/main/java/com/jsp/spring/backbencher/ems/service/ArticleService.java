@@ -1,5 +1,6 @@
 package com.jsp.spring.backbencher.ems.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,8 +25,13 @@ public class ArticleService {
     }
 
     public Article saveArticle(Article article) {
+        if (article.getId() == null) {
+            article.setCreatedAt(LocalDateTime.now());
+        }
+        article.setUpdatedAt(LocalDateTime.now());
         return articleRepository.save(article);
     }
+
 
     public void deleteArticle(Long id) {
         articleRepository.deleteById(id);

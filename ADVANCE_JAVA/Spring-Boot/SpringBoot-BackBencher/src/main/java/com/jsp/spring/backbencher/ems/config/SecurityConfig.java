@@ -25,18 +25,26 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable()).cors(cors -> cors.configurationSource(corsConfigurationSource()))
-				.authorizeHttpRequests(
-						auth -> auth.requestMatchers("/api/auth/**", "/error").permitAll().anyRequest().authenticated())
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.exceptionHandling(eh -> eh.authenticationEntryPoint((request, response, authException) -> {
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					response.getWriter().write("Unauthorized");
-				}));
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/**", "/api/articles", "/api/courses/**", "/error").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(session -> 
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(eh -> eh
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setContentType("application/json");
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("{\"error\": \"Unauthorized\"}");
+                }));
 
-		return http.build();
-	}
+        return http.build();
+    }
 
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {

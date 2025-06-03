@@ -18,6 +18,8 @@ import com.jsp.spring.backbencher.ems.dto.LoginRequest;
 import com.jsp.spring.backbencher.ems.dto.RegisterRequest;
 import com.jsp.spring.backbencher.ems.service.AuthService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = { "http://localhost:3000", "http://127.0.0.1:5500" })
@@ -49,18 +51,19 @@ public class AuthRestController {
         }
     }
 
-    @PostMapping(
-    	    value = "/login",
-    	    produces = MediaType.APPLICATION_JSON_VALUE,
-    	    consumes = MediaType.APPLICATION_JSON_VALUE
-    	)
-    	public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-    	    try {
-    	        AuthResponse response = authService.login(request);
-    	        return ResponseEntity.ok(response);
-    	    } catch (RuntimeException e) {
-    	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-    	            .body(new AuthResponse(null, e.getMessage()));
-    	    }
-    	}
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+        try {
+            AuthResponse response = authService.login(request);
+            return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
+        } catch (RuntimeException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(error);
+        }
+    }
 }

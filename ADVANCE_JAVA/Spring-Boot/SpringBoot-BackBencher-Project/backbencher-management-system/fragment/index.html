@@ -1,12 +1,101 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Backbencher Management System</title>
-    <link rel="stylesheet" href="index.css"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BackBencher Learning Platform</title>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <h1>Welcome to Backbencher Management System</h1>
-    <a href="login.html">Login</a> | <a href="register.html">Register</a>
+    <header>
+        <nav>
+            <div class="logo">BackBencher</div>
+            <div class="nav-items">
+                <a href="#courses">Courses</a>
+                <a href="#articles">Articles</a>
+                <a href="add-article.html" id="add-article-btn" style="display: none;">Add Article</a>
+                <span id="username-display"></span>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="courses" class="section">
+            <h2>Available Courses</h2>
+            <div id="courses-container" class="grid-container"></div>
+        </section>
+
+        <section id="articles" class="section">
+            <h2>Latest Articles</h2>
+            <div id="articles-container" class="grid-container"></div>
+        </section>
+    </main>
+
+    <script type="module">
+        import AuthService from './services/AuthService.js';
+        import ArticleService from './services/ArticleService.js';
+        import CourseService from './services/CourseService.js';
+
+        const authService = new AuthService();
+        const articleService = new ArticleService(authService);
+        const courseService = new CourseService(authService);
+
+        // Check authentication
+        if (!authService.isAuthenticated()) {
+            window.location.href = 'login.html';
+        }
+
+        const userData = authService.getUserData();
+        if (!userData) {
+            authService.logout();
+            return;
+        }
+
+        // Setup UI based on role
+        const usernameDisplay = document.getElementById('username-display');
+        const addArticleBtn = document.getElementById('add-article-btn');
+        
+        usernameDisplay.textContent = `Welcome, ${userData.username}`;
+        if (userData.role === 'ADMIN') {
+            addArticleBtn.style.display = 'inline-block';
+        }
+
+        // Setup logout
+        document.getElementById('logout-btn').onclick = () => authService.logout();
+
+        // Load data
+        async function loadData() {
+            try {
+                const [courses, articles] = await Promise.all([
+                    courseService.getAll(),
+                    articleService.getAll()
+                ]);
+
+                document.getElementById('courses-container').innerHTML = courses.map(course => `
+                    <div class="card">
+                        <h3>${course.title}</h3>
+                        <p>${course.description || 'No description available'}</p>
+                        <a href="course-detail.html?id=${course.id}" class="btn">View Course</a>
+                    </div>
+                `).join('');
+
+                document.getElementById('articles-container').innerHTML = articles.map(article => `
+                    <div class="card">
+                        <h3>${article.title}</h3>
+                        <p>${article.content.substring(0, 150)}...</p>
+                        <div class="article-meta">
+                            <span>Rating: ${article.averageRating.toFixed(1)} (${article.voteCount} votes)</span>
+                        </div>
+                        <a href="article-detail.html?id=${article.id}" class="btn">Read More</a>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load data:', error);
+            }
+        }
+
+        loadData();
+    </script>
 </body>
 </html>
-

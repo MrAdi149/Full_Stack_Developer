@@ -1,15 +1,19 @@
+import AuthService from './AuthService.js';
 const authService = new AuthService();
 
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
+document.getElementById('loginForm').onsubmit = async (e) => {
     e.preventDefault();
-    
-    const username = document.getElementById('username').value;
+    const username = document.getElementById('username').value; // not email!
     const password = document.getElementById('password').value;
-
+    const errorDiv = document.getElementById('error-message');
     try {
         const result = await authService.login(username, password);
-        window.location.href = '/dashboard.html';
-    } catch (error) {
-        document.getElementById('error-message').textContent = error.message;
+        if (result.token) {
+            window.location.href = 'index.html';
+        } else {
+            errorDiv.textContent = result.message || 'Login failed!';
+        }
+    } catch (err) {
+        errorDiv.textContent = err.message || 'Login failed!';
     }
-});
+};

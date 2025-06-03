@@ -5,20 +5,55 @@
     <link rel="stylesheet" href="login.css"/>
 </head>
 <body>
-    <form id="loginForm">
-        <div>
-            <label>Username:</label>
-            <input type="text" id="username" required>
+    <div class="login-container">
+        <h2>Login to BackBencher</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div id="error-message" class="error"></div>
+            <button type="submit">Login</button>
+        </form>
+        <div class="register-link">
+            <a href="register.html">Need an account? Register here</a>
         </div>
-        <div>
-            <label>Password:</label>
-            <input type="password" id="password" required>
-        </div>
-        <div id="error-message" style="color: red;"></div>
-        <button type="submit">Login</button>
-    </form>
+    </div>
 
-    <script src="./AuthService.js"></script>
-    <script src="./login.js"></script>
+    <script type="module">
+        import AuthService from './services/AuthService.js';
+        
+        const authService = new AuthService();
+
+        // Redirect if already logged in
+        if (authService.isAuthenticated()) {
+            const userData = authService.getUserData();
+            window.location.href = userData?.role === 'ADMIN' ? 'admin/dashboard.html' : 'index.html';
+        }
+
+        document.getElementById('loginForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const errorDiv = document.getElementById('error-message');
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const result = await authService.login(username, password);
+                const userData = authService.getUserData();
+                
+                if (userData?.role === 'ADMIN') {
+                    window.location.href = 'admin/dashboard.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
+            } catch (err) {
+                errorDiv.textContent = err.message;
+            }
+        };
+    </script>
 </body>
 </html>
