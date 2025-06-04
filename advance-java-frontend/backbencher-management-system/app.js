@@ -124,17 +124,18 @@ function initUI() {
         show(logoutBtn);
         if (currentUser.role === 'ADMIN') {
             userRole = 'ADMIN';
-            show(adminSection);
+            if (adminSection) show(adminSection);
         } else {
             userRole = currentUser.role;
-            hide(adminSection);
+            if (adminSection) hide(adminSection);
         }
         loadInitialData();
+        updateDashboardUser();
     } else {
         show(authSection);
         hide(mainSection);
         hide(logoutBtn);
-        hide(adminSection);
+        if (adminSection) hide(adminSection);
     }
 }
 
@@ -145,7 +146,9 @@ async function loadInitialData() {
             loadCourses(),
             loadArticles(),
             loadPdfs(),
-            populateCourseSelects()
+            populateCourseSelects(),
+            updateDashboardStats(),
+            updateDashboardRecentCourses()
         ]);
     } catch (error) {
         console.error('Error loading initial data:', error);
@@ -176,6 +179,8 @@ async function loadCourses() {
             `;
             list.appendChild(courseCard);
         });
+        // For dashboard stats
+        window._coursesData = courses;
     } catch (error) {
         showMessage(error.message);
     }
@@ -224,6 +229,8 @@ async function loadArticles() {
             articleCard.addEventListener('click', () => showArticleModal(a));
             list.appendChild(articleCard);
         });
+        // For dashboard stats
+        window._articlesData = articles;
     } catch (error) {
         showMessage(error.message);
     }
@@ -264,8 +271,77 @@ async function loadPdfs() {
             });
             list.appendChild(pdfCard);
         });
+        // For dashboard stats
+        window._pdfsData = pdfs;
     } catch (error) {
         showMessage(error.message);
+    }
+}
+
+// ---- Dashboard Stats ----
+async function updateDashboardStats() {
+    // Use previously fetched data if available, or fetch
+    let courses = window._coursesData, articles = window._articlesData, pdfs = window._pdfsData;
+    try {
+        if (!courses) {
+            const response = await fetch(`${API}/courses`, { headers: authHeaders() });
+            courses = await handleApiResponse(response, 'Failed to load courses');
+        }
+        if (!articles) {
+            const response = await fetch(`${API}/articles`, { headers: authHeaders() });
+            articles = await handleApiResponse(response, 'Failed to load articles');
+        }
+        if (!pdfs) {
+            const response = await fetch(`${API}/pdf`, { headers: authHeaders() });
+            pdfs = await handleApiResponse(response, 'Failed to load PDFs');
+        }
+    } catch {
+        // Ignore errors here, just don't update stats
+    }
+    document.getElementById('stat-courses').textContent = courses ? courses.length : '0';
+    document.getElementById('stat-articles').textContent = articles ? articles.length : '0';
+    // Demo values for assignments/certificates, replace with real API if available
+    document.getElementById('stat-pending').textContent = '2';
+    document.getElementById('stat-certificates').textContent = '1';
+}
+
+function updateDashboardUser() {
+    if (!currentUser) return;
+    const usernameEl = document.getElementById('welcome-username');
+    if (usernameEl) {
+        usernameEl.textContent = `Welcome back, ${currentUser.username || 'User'}!`;
+    }
+    // Optionally update the welcome message with more info if available
+}
+
+async function updateDashboardRecentCourses() {
+    // Show latest 3 courses in dashboard
+    let courses = window._coursesData;
+    if (!courses) {
+        try {
+            const response = await fetch(`${API}/courses`, { headers: authHeaders() });
+            courses = await handleApiResponse(response, 'Failed to load courses');
+        } catch {
+            courses = [];
+        }
+    }
+    const recentList = document.getElementById('recent-courses-list');
+    if (recentList) {
+        recentList.innerHTML = '';
+        courses.slice(-3).reverse().forEach(course => {
+            const courseCard = document.createElement('div');
+            courseCard.className = 'item-card';
+            courseCard.innerHTML = `
+                <h3><i class="fas fa-book"></i> ${course.title}</h3>
+                <p>${course.description || 'No description available'}</p>
+                <div class="meta">
+                    <span>Type: ${course.type}</span>
+                    <span>ID: ${course.id}</span>
+                    <span>Created: ${course.createdAt ? new Date(course.createdAt).toLocaleDateString() : ''}</span>
+                </div>
+            `;
+            recentList.appendChild(courseCard);
+        });
     }
 }
 
@@ -350,6 +426,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const contentElement = document.getElementById(`${tabId}-tab`);
             if (contentElement) {
                 contentElement.classList.add('active');
+            }
+            // If dashboard tab, update stats and welcome
+            if (tabId === 'dashboard') {
+                updateDashboardStats();
+                updateDashboardUser();
+                updateDashboardRecentCourses();
             }
         });
     });
@@ -454,61 +536,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Upload PDF
-    // In your upload PDF event listener:
-document.getElementById("upload-pdf-form")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    if (!token) {
-        showMessage("You must login first.");
-        return;
-    }
-    const file = document.getElementById("pdf-file").files[0];
-    const courseId = document.getElementById("pdf-course-id").value;
-    
-    if (!file) {
-        showMessage('Please select a PDF file to upload.');
-        return;
-    }
-    if (file.type !== 'application/pdf') {
-        showMessage('Only PDF files are allowed.');
-        return;
-    }
-    if (!courseId) {
-        showMessage('Please select a course for the PDF.');
-        return;
-    }
-    
-    try {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("courseId", courseId);
+    document.getElementById("upload-pdf-form")?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!token) {
+            showMessage("You must login first.");
+            return;
+        }
+        const file = document.getElementById("pdf-file").files[0];
+        const courseId = document.getElementById("pdf-course-id").value;
         
-        console.log('Uploading file:', file.name);
-        console.log('Course ID:', courseId);
-        console.log('Token present:', !!token);
-        
-        const response = await fetch(`${API}/pdf/upload`, {
-            method: "POST",
-            headers: {
-                'Authorization': `Bearer ${token}`
-                // Do NOT set Content-Type header for multipart/form-data
-            },
-            body: formData
-        });
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Upload failed:', response.status, errorText);
-            throw new Error(errorText || 'Failed to upload PDF');
+        if (!file) {
+            showMessage('Please select a PDF file to upload.');
+            return;
+        }
+        if (file.type !== 'application/pdf') {
+            showMessage('Only PDF files are allowed.');
+            return;
+        }
+        if (!courseId) {
+            showMessage('Please select a course for the PDF.');
+            return;
         }
         
-        await loadPdfs();
-        document.getElementById("upload-pdf-form").reset();
-        showMessage('PDF uploaded successfully!', false);
-    } catch (error) {
-        console.error('Upload error:', error);
-        showMessage(error.message || 'Failed to upload PDF. Please try again.');
-    }
-});
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("courseId", courseId);
+            
+            const response = await fetch(`${API}/pdf/upload`, {
+                method: "POST",
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                    // Do NOT set Content-Type header for multipart/form-data
+                },
+                body: formData
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || 'Failed to upload PDF');
+            }
+            
+            await loadPdfs();
+            document.getElementById("upload-pdf-form").reset();
+            showMessage('PDF uploaded successfully!', false);
+        } catch (error) {
+            showMessage(error.message || 'Failed to upload PDF. Please try again.');
+        }
+    });
 
     // ---- Admin Buttons ----
     document.getElementById("load-users-btn")?.addEventListener("click", async () => {
