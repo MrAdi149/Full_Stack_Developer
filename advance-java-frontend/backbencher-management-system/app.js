@@ -1,13 +1,54 @@
+// =====================
+// Constants and Globals
+// =====================
 const API = "http://localhost:8080/api";
-let token = null;
-let userRole = null;
-let currentUser = null;
 
-function authHeaders() {
-    return token ? { "Authorization": `Bearer ${token}` } : {};
+// ---- Utility Functions ----
+function safeJSONParse(str, defaultValue = null) {
+    if (!str) return defaultValue;
+    try {
+        return JSON.parse(str);
+    } catch (e) {
+        console.warn('JSON Parse Error:', e);
+        return defaultValue;
+    }
 }
 
+// ---- Global State ----
+let token = localStorage.getItem('jwt_token') || null;
+let currentUser = safeJSONParse(localStorage.getItem('current_user'));
+let userRole = currentUser?.role || null;
+
+// ---- Auth Header Helper ----
+function authHeaders(contentType) {
+    const headers = {};
+    if (contentType) headers["Content-Type"] = contentType;
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    return headers;
+}
+
+// ---- API Response Helper ----
+async function handleApiResponse(response, errorMessage = 'Operation failed') {
+    try {
+        const contentType = response.headers.get('content-type');
+        if (contentType?.includes('application/json')) {
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || errorMessage);
+            return data;
+        } else {
+            const text = await response.text();
+            if (!response.ok) throw new Error(text || errorMessage);
+            return text;
+        }
+    } catch (error) {
+        console.error('API Error:', error);
+        throw error;
+    }
+}
+
+// ---- UI Helpers ----
 function show(element) {
+    if (!element) return;
     element.classList.remove('hidden');
     element.style.opacity = '0';
     element.style.display = 'block';
@@ -15,6 +56,7 @@ function show(element) {
 }
 
 function hide(element) {
+    if (!element) return;
     element.style.opacity = '0';
     setTimeout(() => {
         element.style.display = 'none';
@@ -24,139 +66,151 @@ function hide(element) {
 
 function showMessage(message, isError = true) {
     const messageDiv = document.getElementById("auth-message");
+    if (!messageDiv) return;
     messageDiv.textContent = message;
     messageDiv.className = isError ? 'alert alert-error' : 'alert alert-success';
     show(messageDiv);
     setTimeout(() => { hide(messageDiv); }, 5000);
 }
 
-document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        const tabId = tab.getAttribute('data-tab');
-        document.getElementById(`${tabId}-tab`).classList.add('active');
-    });
-});
-
-document.getElementById("login-form").onsubmit = async e => {
-    e.preventDefault();
-    const username = document.getElementById("login-username").value.trim();
-    const password = document.getElementById("login-password").value.trim();
+// ---- Authentication ----
+async function login(username, password) {
     try {
-        const res = await fetch(`${API}/auth/login`, {
+        const response = await fetch(`${API}/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password })
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Login failed');
+
+        const data = await handleApiResponse(response, 'Login failed');
+        
         token = data.token;
-        currentUser = data.user;
-        hide(document.getElementById("auth-section"));
-        show(document.getElementById("main-section"));
-        show(document.getElementById("logout-btn"));
-        getUserRole();
-        loadCourses();
-        loadArticles();
-        loadPdfs();
-    } catch (error) {
-        showMessage(error.message || 'Login failed. Please try again.');
-    }
-};
+        currentUser = {
+            username,
+            role: data.role || 'USER',
+            email: data.email,
+            ...data.user
+        };
+        userRole = currentUser.role;
 
-document.getElementById("register-form").onsubmit = async e => {
-    e.preventDefault();
-    const username = document.getElementById("register-username").value.trim();
-    const email = document.getElementById("register-email").value.trim();
-    const firstName = document.getElementById("register-firstname").value.trim();
-    const lastName = document.getElementById("register-lastname").value.trim();
-    const password = document.getElementById("register-password").value;
-    try {
-        const res = await fetch(`${API}/auth/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, email, firstName, lastName, password })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || 'Registration failed');
-        showMessage('Registration successful! Please login.', false);
-        document.getElementById("register-form").reset();
-    } catch (error) {
-        showMessage(error.message || 'Registration failed. Please try again.');
-    }
-};
+        localStorage.setItem('jwt_token', token);
+        localStorage.setItem('current_user', JSON.stringify(currentUser));
 
-document.getElementById("logout-btn").onclick = () => {
+        return true;
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function logout() {
     token = null;
-    userRole = null;
     currentUser = null;
-    show(document.getElementById("auth-section"));
-    hide(document.getElementById("main-section"));
-    hide(document.getElementById("logout-btn"));
-    hide(document.getElementById("admin-section"));
-};
+    userRole = null;
+    localStorage.removeItem('jwt_token');
+    localStorage.removeItem('current_user');
+    initUI();
+}
+
+// ---- UI State Management ----
+function initUI() {
+    const authSection = document.getElementById("auth-section");
+    const mainSection = document.getElementById("main-section");
+    const logoutBtn = document.getElementById("logout-btn");
+    const adminSection = document.getElementById("admin-section");
+
+    if (token && currentUser) {
+        hide(authSection);
+        show(mainSection);
+        show(logoutBtn);
+        if (currentUser.role === 'ADMIN') {
+            userRole = 'ADMIN';
+            show(adminSection);
+        } else {
+            userRole = currentUser.role;
+            hide(adminSection);
+        }
+        loadInitialData();
+    } else {
+        show(authSection);
+        hide(mainSection);
+        hide(logoutBtn);
+        hide(adminSection);
+    }
+}
+
+// ---- Data Loading Functions ----
+async function loadInitialData() {
+    try {
+        await Promise.allSettled([
+            loadCourses(),
+            loadArticles(),
+            loadPdfs(),
+            populateCourseSelects()
+        ]);
+    } catch (error) {
+        console.error('Error loading initial data:', error);
+        showMessage('Some data failed to load. Please refresh the page.');
+    }
+}
 
 async function loadCourses() {
     try {
-        const res = await fetch(`${API}/courses`, { headers: authHeaders() });
-        if (!res.ok) throw new Error('Failed to load courses');
-        const courses = await res.json();
+        const response = await fetch(`${API}/courses`, { headers: authHeaders() });
+        const courses = await handleApiResponse(response, 'Failed to load courses');
+        
         const list = document.getElementById("courses-list");
+        if (!list) return;
+        
         list.innerHTML = "";
-        courses.forEach(c => {
+        courses.forEach(course => {
             const courseCard = document.createElement('div');
             courseCard.className = 'item-card';
             courseCard.innerHTML = `
-                <h3><i class="fas fa-book"></i> ${c.title}</h3>
-                <p>${c.description || 'No description available'}</p>
+                <h3><i class="fas fa-book"></i> ${course.title}</h3>
+                <p>${course.description || 'No description available'}</p>
                 <div class="meta">
-                    <span>Type: ${c.type}</span>
-                    <span>ID: ${c.id}</span>
-                    <span>Created: ${c.createdAt ? new Date(c.createdAt).toLocaleDateString() : ''}</span>
+                    <span>Type: ${course.type}</span>
+                    <span>ID: ${course.id}</span>
+                    <span>Created: ${course.createdAt ? new Date(course.createdAt).toLocaleDateString() : ''}</span>
                 </div>
             `;
             list.appendChild(courseCard);
         });
     } catch (error) {
-        showMessage('Failed to load courses. Please try again.');
+        showMessage(error.message);
     }
 }
 
-document.getElementById("add-course-form").onsubmit = async e => {
-    e.preventDefault();
-    const title = document.getElementById("course-title").value.trim();
-    const type = document.getElementById("course-type").value;
-    const description = document.getElementById("course-description").value;
+async function populateCourseSelects() {
     try {
-        const res = await fetch(`${API}/courses`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", ...authHeaders() },
-            body: JSON.stringify({ title, type, description })
+        const response = await fetch(`${API}/courses`, { headers: authHeaders() });
+        const courses = await handleApiResponse(response, 'Failed to load courses');
+        
+        ['article-course-id', 'pdf-course-id'].forEach(id => {
+            const select = document.getElementById(id);
+            if (select) {
+                select.innerHTML = `<option value="">Select Course</option>`;
+                courses.forEach(c => {
+                    select.innerHTML += `<option value="${c.id}">${c.title} (${c.type})</option>`;
+                });
+            }
         });
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.message || 'Failed to create course');
-        }
-        loadCourses();
-        document.getElementById("add-course-form").reset();
-        showMessage('Course created successfully!', false);
     } catch (error) {
-        showMessage(error.message || 'Failed to create course. Please try again.');
+        // Silently ignore for dropdowns on load
     }
-};
+}
 
 async function loadArticles() {
     try {
-        const res = await fetch(`${API}/articles`, { headers: authHeaders() });
-        if (!res.ok) throw new Error('Failed to load articles');
-        const articles = await res.json();
+        const response = await fetch(`${API}/articles`, { headers: authHeaders() });
+        const articles = await handleApiResponse(response, 'Failed to load articles');
         const list = document.getElementById("articles-list");
+        if (!list) return;
         list.innerHTML = "";
         articles.forEach(a => {
             const articleCard = document.createElement('div');
-            articleCard.className = 'item-card';
+            articleCard.className = 'item-card article-card';
+            articleCard.style.cursor = 'pointer';
             articleCard.innerHTML = `
                 <h3><i class="fas fa-file-alt"></i> ${a.title}</h3>
                 <p>${a.content.length > 100 ? a.content.substring(0, 100) + '...' : a.content}</p>
@@ -166,108 +220,281 @@ async function loadArticles() {
                     <span>By: ${a.author?.username || 'N/A'}</span>
                 </div>
             `;
+            // Attach click event for modal
+            articleCard.addEventListener('click', () => showArticleModal(a));
             list.appendChild(articleCard);
         });
     } catch (error) {
-        showMessage('Failed to load articles. Please try again.');
+        showMessage(error.message);
     }
 }
 
-document.getElementById("add-article-form").onsubmit = async e => {
-    e.preventDefault();
-    const title = document.getElementById("article-title").value.trim();
-    const content = document.getElementById("article-content").value;
-    const courseId = document.getElementById("article-course-id").value.trim();
-    try {
-        const res = await fetch(`${API}/articles?courseId=${courseId}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", ...authHeaders() },
-            body: JSON.stringify({ title, content })
-        });
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.message || 'Failed to create article');
-        }
-        loadArticles();
-        document.getElementById("add-article-form").reset();
-        showMessage('Article created successfully!', false);
-    } catch (error) {
-        showMessage(error.message || 'Failed to create article. Please try again.');
-    }
-};
-
 async function loadPdfs() {
+    if (!token) return;
     try {
-        const res = await fetch(`${API}/pdfs`, { headers: authHeaders() });
-        if (!res.ok) throw new Error('Failed to load PDFs');
-        const pdfs = await res.json();
+        const response = await fetch(`${API}/pdf`, { headers: authHeaders() });
+        const pdfs = await handleApiResponse(response, 'Failed to load PDFs');
         const list = document.getElementById("pdfs-list");
+        if (!list) return;
         list.innerHTML = "";
         pdfs.forEach(pdf => {
+            const courseLabel = pdf.course && pdf.course.title
+                ? `${pdf.course.title} (${pdf.course.id})`
+                : (pdf.course?.id ? `ID: ${pdf.course.id}` : "N/A");
+            const byLabel = pdf.user && pdf.user.username ? pdf.user.username : "N/A";
+            // PDF file endpoint
+            const pdfUrl = `${API}/pdf/file/${pdf.id}`;
             const pdfCard = document.createElement('div');
-            pdfCard.className = 'item-card';
+            pdfCard.className = 'item-card pdf-card';
+            pdfCard.style.cursor = 'pointer';
             pdfCard.innerHTML = `
-                <h3><i class="fas fa-file-pdf"></i> ${pdf.fileName}</h3>
+                <h3>
+                    <i class="fas fa-file-pdf"></i>
+                    <span style="color:#f44336;text-decoration:underline;">${pdf.fileName}</span>
+                </h3>
                 <p>${pdf.extractedText ? pdf.extractedText.substring(0, 100) + '...' : ''}</p>
                 <div class="meta">
-                    <span>Course: ${pdf.course?.id || 'N/A'}</span>
+                    <span>Course: ${courseLabel}</span>
                     <span>ID: ${pdf.id}</span>
-                    <span>By: ${pdf.user?.username || 'N/A'}</span>
+                    <span>By: ${byLabel}</span>
                 </div>
             `;
+            pdfCard.addEventListener('click', () => {
+                window.open(pdfUrl, '_blank'); // Open the PDF in a new tab
+            });
             list.appendChild(pdfCard);
         });
     } catch (error) {
-        showMessage('Failed to load PDFs. Please try again.');
+        showMessage(error.message);
     }
 }
 
-document.getElementById("upload-pdf-form").onsubmit = async e => {
+// ---- Article Modal Logic ----
+function showArticleModal(article) {
+    document.getElementById("modal-article-title").textContent = article.title;
+    document.getElementById("modal-article-content").textContent = article.content;
+    document.getElementById("modal-article-meta").innerHTML = `
+        <div class="meta">
+            <span>Course: ${article.course?.id || 'N/A'}</span>
+            <span>ID: ${article.id}</span>
+            <span>By: ${article.author?.username || 'N/A'}</span>
+            <span>Created: ${article.createdAt ? new Date(article.createdAt).toLocaleString() : ''}</span>
+        </div>
+    `;
+    document.getElementById("article-modal").classList.add('active');
+    document.getElementById("article-modal").classList.remove('hidden');
+}
+function closeArticleModal() {
+    document.getElementById("article-modal").classList.remove('active');
+    document.getElementById("article-modal").classList.add('hidden');
+}
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("close-article-modal").addEventListener('click', closeArticleModal);
+    document.getElementById("article-modal").addEventListener('click', function(e) {
+        if (e.target === this) closeArticleModal();
+    });
+});
+
+// ---- Event Listeners ----
+document.addEventListener('DOMContentLoaded', () => {
+    initUI();
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const tabId = tab.getAttribute('data-tab');
+            const contentElement = document.getElementById(`${tabId}-tab`);
+            if (contentElement) {
+                contentElement.classList.add('active');
+            }
+        });
+    });
+
+    // Login
+    document.getElementById("login-form")?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const username = document.getElementById("login-username").value.trim();
+        const password = document.getElementById("login-password").value.trim();
+        try {
+            await login(username, password);
+            showMessage('Login successful!', false);
+            initUI();
+        } catch (error) {
+            showMessage(error.message || 'Login failed. Please try again.');
+        }
+    });
+
+    // Register
+    document.getElementById("register-form")?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = {
+            username: document.getElementById("register-username").value.trim(),
+            password: document.getElementById("register-password").value.trim(),
+            email: document.getElementById("register-email").value.trim(),
+            firstName: document.getElementById("register-firstname").value.trim(),
+            lastName: document.getElementById("register-lastname").value.trim()
+        };
+        try {
+            const response = await fetch(`${API}/auth/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData)
+            });
+            await handleApiResponse(response, 'Registration failed');
+            showMessage('Registration successful! Please login.', false);
+            document.getElementById("register-form").reset();
+        } catch (error) {
+            showMessage(error.message || 'Registration failed. Please try again.');
+        }
+    });
+
+    // Logout
+    document.getElementById("logout-btn")?.addEventListener("click", logout);
+
+    // Add Course
+    document.getElementById("add-course-form")?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!token) {
+            showMessage("You must login first.");
+            return;
+        }
+        const title = document.getElementById("course-title").value.trim();
+        const type = document.getElementById("course-type").value;
+        const description = document.getElementById("course-description").value;
+        if (!title) {
+            showMessage("Please enter a course title");
+            return;
+        }
+        try {
+            const response = await fetch(`${API}/courses`, {
+                method: "POST",
+                headers: authHeaders("application/json"),
+                body: JSON.stringify({ title, type, description })
+            });
+            await handleApiResponse(response, 'Failed to create course');
+            await Promise.all([loadCourses(), populateCourseSelects()]);
+            document.getElementById("add-course-form").reset();
+            showMessage('Course created successfully!', false);
+        } catch (error) {
+            showMessage(error.message || 'Failed to create course. Please try again.');
+        }
+    });
+
+    // Add Article
+    document.getElementById("add-article-form")?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!token) {
+            showMessage("You must login first.");
+            return;
+        }
+        const title = document.getElementById("article-title").value.trim();
+        const content = document.getElementById("article-content").value.trim();
+        const courseId = document.getElementById("article-course-id").value;
+        if (!title || !content || !courseId) {
+            showMessage("Please fill all required fields");
+            return;
+        }
+        try {
+            const response = await fetch(`${API}/articles`, {
+                method: "POST",
+                headers: authHeaders("application/json"),
+                body: JSON.stringify({ title, content, courseId })
+            });
+            await handleApiResponse(response, 'Failed to create article');
+            await loadArticles();
+            document.getElementById("add-article-form").reset();
+            showMessage('Article created successfully!', false);
+        } catch (error) {
+            showMessage(error.message || 'Failed to create article. Please try again.');
+        }
+    });
+
+    // Upload PDF
+    // In your upload PDF event listener:
+document.getElementById("upload-pdf-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (!token) {
+        showMessage("You must login first.");
+        return;
+    }
     const file = document.getElementById("pdf-file").files[0];
-    const courseId = document.getElementById("pdf-course-id").value.trim();
+    const courseId = document.getElementById("pdf-course-id").value;
+    
     if (!file) {
         showMessage('Please select a PDF file to upload.');
         return;
     }
+    if (file.type !== 'application/pdf') {
+        showMessage('Only PDF files are allowed.');
+        return;
+    }
+    if (!courseId) {
+        showMessage('Please select a course for the PDF.');
+        return;
+    }
+    
     try {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("courseId", courseId);
-        const res = await fetch(`${API}/pdf/upload`, {
+        
+        console.log('Uploading file:', file.name);
+        console.log('Course ID:', courseId);
+        console.log('Token present:', !!token);
+        
+        const response = await fetch(`${API}/pdf/upload`, {
             method: "POST",
-            headers: authHeaders(),
+            headers: {
+                'Authorization': `Bearer ${token}`
+                // Do NOT set Content-Type header for multipart/form-data
+            },
             body: formData
         });
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.message || 'Failed to upload PDF');
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Upload failed:', response.status, errorText);
+            throw new Error(errorText || 'Failed to upload PDF');
         }
-        showMessage('PDF uploaded successfully!', false);
+        
+        await loadPdfs();
         document.getElementById("upload-pdf-form").reset();
-        loadPdfs();
+        showMessage('PDF uploaded successfully!', false);
     } catch (error) {
+        console.error('Upload error:', error);
         showMessage(error.message || 'Failed to upload PDF. Please try again.');
     }
-};
+});
 
-async function getUserRole() {
-    if (currentUser && currentUser.role === 'ADMIN') {
-        userRole = 'ADMIN';
-        show(document.getElementById("admin-section"));
-    } else {
-        hide(document.getElementById("admin-section"));
-    }
-}
+    // ---- Admin Buttons ----
+    document.getElementById("load-users-btn")?.addEventListener("click", async () => {
+        if (!token || currentUser?.role !== 'ADMIN') {
+            showMessage("Unauthorized access");
+            return;
+        }
+        await loadAdminUsers();
+    });
 
-// Admin users list
-document.getElementById("load-users-btn").onclick = async () => {
+    document.getElementById("load-reported-btn")?.addEventListener("click", async () => {
+        if (!token || currentUser?.role !== 'ADMIN') {
+            showMessage("Unauthorized access");
+            return;
+        }
+        await loadReportedContent();
+    });
+});
+
+// ---- Admin Users ----
+async function loadAdminUsers() {
     try {
         const res = await fetch(`${API}/admin/dashboard`, { headers: authHeaders() });
-        if (!res.ok) throw new Error('Failed to load users');
-        const data = await res.json();
+        const data = await handleApiResponse(res, 'Failed to load users');
         const users = data.users || [];
         const list = document.getElementById("users-list");
+        if (!list) return;
         list.innerHTML = "";
         users.forEach(u => {
             const userCard = document.createElement('div');
@@ -285,16 +512,16 @@ document.getElementById("load-users-btn").onclick = async () => {
     } catch (error) {
         showMessage('Failed to load users. Please try again.');
     }
-};
+}
 
-// Admin reported content list and actions
-document.getElementById("load-reported-btn").onclick = async () => {
+// ---- Admin Reported ----
+async function loadReportedContent() {
     try {
         const res = await fetch(`${API}/admin/dashboard`, { headers: authHeaders() });
-        if (!res.ok) throw new Error('Failed to load reported content');
-        const data = await res.json();
+        const data = await handleApiResponse(res, 'Failed to load reported content');
         const reported = data.reportedContent || [];
         const list = document.getElementById("reported-list");
+        if (!list) return;
         list.innerHTML = "";
         reported.forEach(content => {
             const contentCard = document.createElement('div');
@@ -319,7 +546,7 @@ document.getElementById("load-reported-btn").onclick = async () => {
             list.appendChild(contentCard);
         });
 
-        // Approve/reject event listeners
+        // Approve/reject
         document.querySelectorAll('.approve-btn').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const id = btn.getAttribute('data-id');
@@ -353,10 +580,4 @@ document.getElementById("load-reported-btn").onclick = async () => {
     } catch (error) {
         showMessage('Failed to load reported content. Please try again.');
     }
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-    loadCourses();
-    loadArticles();
-    loadPdfs();
-});
+}

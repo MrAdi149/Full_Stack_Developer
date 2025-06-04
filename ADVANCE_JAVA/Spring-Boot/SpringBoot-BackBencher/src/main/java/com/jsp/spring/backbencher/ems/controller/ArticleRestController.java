@@ -2,8 +2,10 @@ package com.jsp.spring.backbencher.ems.controller;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,24 +49,66 @@ public class ArticleRestController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+ // Error response class
+    private static class ErrorResponse {
+        private String message;
+        
+        public ErrorResponse(String message) {
+            this.message = message;
+        }
+        
+        public String getMessage() {
+            return message;
+        }
+    }
+
     @PostMapping
-    public ResponseEntity<Article> addArticle(@RequestBody Article article,
-                                              @RequestParam Long courseId,
-                                              Principal principal) {
-        User user = userService.findByEmail(principal.getName())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        Course course = courseService.getCourseById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
-        article.setAuthor(user);
-        article.setCourse(course);
-        Article saved = articleService.saveArticle(article);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<?> addArticle(@RequestBody Map<String, Object> payload,
+                                      Principal principal) {
+        try {
+            if (principal == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("User not authenticated"));
+            }
+            
+            // Extract values from payload
+            String title = (String) payload.get("title");
+            String content = (String) payload.get("content");
+            Long courseId = Long.parseLong(payload.get("courseId").toString());
+            
+            // Get current user - use principal name
+            String username = principal.getName();
+            User user = userService.findByUsername(username)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+            
+            // Get course
+            Course course = courseService.getCourseById(courseId)
+                    .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+            
+            // Create and save article
+            Article article = new Article();
+            article.setTitle(title);
+            article.setContent(content);
+            article.setAuthor(user);
+            article.setCourse(course);
+            
+            Article saved = articleService.saveArticle(article);
+            return ResponseEntity.ok(saved);
+            
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse(e.getMessage()));
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Article> editArticle(@PathVariable Long id,
                                                @RequestBody Article article,
-                                               @RequestParam Long courseId) {
+                                               @RequestParam Long courseId,
+                                               Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body(null);
+        }
         Article existing = articleService.getArticleById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid article Id:" + id));
         article.setId(id);
@@ -77,7 +121,10 @@ public class ArticleRestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteArticle(@PathVariable Long id) {
+    public ResponseEntity<?> deleteArticle(@PathVariable Long id, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
         articleService.deleteArticle(id);
         return ResponseEntity.ok().build();
     }

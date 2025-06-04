@@ -1,12 +1,12 @@
 package com.jsp.spring.backbencher.ems.service;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +20,8 @@ import com.jsp.spring.backbencher.ems.entity.User;
 import com.jsp.spring.backbencher.ems.repository.CourseRepository;
 import com.jsp.spring.backbencher.ems.repository.PdfUploadRepository;
 import com.jsp.spring.backbencher.ems.repository.UserRepository;
+
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class PdfService {
@@ -35,6 +37,15 @@ public class PdfService {
 
     @Autowired
     private PdfUploadRepository pdfUploadRepository;
+    
+    @PostConstruct
+    public void init() {
+        try {
+            Files.createDirectories(Paths.get(uploadDir));
+        } catch (IOException e) {
+            throw new RuntimeException("Could not create upload directory!");
+        }
+    }
 
     public PdfUpload processPdfUpload(MultipartFile file, Long userId, Long courseId) throws IOException {
         // 1. Create upload directory if not exists
@@ -52,13 +63,26 @@ public class PdfService {
         // 3. Save file to disk
         Files.copy(file.getInputStream(), filePath);
 
-        // 4. Extract text from PDF (updated PDFBox 3.x syntax)
+        // 4. Extract text from PDF using PDFBox 3.x API
         String extractedText = "";
-        try (PDDocument document = PDDocument.load(filePath.toFile())) {
-            if (!document.isEncrypted()) {
-                PDFTextStripper stripper = new PDFTextStripper();
-                extractedText = stripper.getText(document);
+        try {
+            // Create a temporary file
+            Path tempFile = Files.createTempFile("temp", ".pdf");
+            file.transferTo(tempFile.toFile());
+            
+            try (PDDocument document = Loader.loadPDF(filePath.toFile())) { // Updated loading method
+                if (!document.isEncrypted()) {
+                    PDFTextStripper stripper = new PDFTextStripper();
+                    extractedText = stripper.getText(document);
+                }
             }
+            
+            // Clean up temp file
+            Files.deleteIfExists(tempFile);
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+            extractedText = "Failed to extract text: " + e.getMessage();
         }
 
         // 5. Create and populate PdfUpload entity

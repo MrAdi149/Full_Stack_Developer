@@ -1,9 +1,12 @@
 package com.jsp.spring.backbencher.ems.service;
 
 import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,11 +17,13 @@ import com.jsp.spring.backbencher.ems.repository.UserRepository;
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    
+    private final Logger logger = LoggerFactory.getLogger(UserService.class);
+
 
     // Simple save method for basic user creation
     public void saveUser(User user) {
@@ -28,6 +33,21 @@ public class UserService {
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    
+    @Autowired
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+    
+    public Optional<User> findByUsername(String username) {
+        logger.debug("Looking up user by username: " + username);
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) {
+            logger.error("User not found: " + username);
+        }
+        return user;
     }
 
     public boolean emailExists(String email) {

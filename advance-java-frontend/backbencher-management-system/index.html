@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BackBencher EMS</title>
+    <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -30,11 +31,11 @@
                         <form id="login-form" autocomplete="off">
                             <div class="form-group">
                                 <label for="login-username">Username</label>
-                                <input type="text" id="login-username" class="form-control" placeholder="Enter username" required>
+                                <input type="text" id="login-username" class="form-control" placeholder="Enter username" autocomplete="username" required>
                             </div>
                             <div class="form-group">
                                 <label for="login-password">Password</label>
-                                <input type="password" id="login-password" class="form-control" placeholder="Enter password" required>
+                                <input type="password" id="login-password" class="form-control" placeholder="Enter password" autocomplete="current-password" required>
                             </div>
                             <button type="submit" class="btn btn-primary" style="width: 100%;">
                                 <i class="fas fa-lock"></i> Login
@@ -51,23 +52,23 @@
                         <form id="register-form" autocomplete="off">
                             <div class="form-group">
                                 <label for="register-username">Username</label>
-                                <input type="text" id="register-username" class="form-control" placeholder="Choose username" required>
+                                <input type="text" id="register-username" class="form-control" placeholder="Choose username" autocomplete="username" required>
                             </div>
                             <div class="form-group">
                                 <label for="register-email">Email</label>
-                                <input type="email" id="register-email" class="form-control" placeholder="Enter email" required>
+                                <input type="email" id="register-email" class="form-control" placeholder="Enter email" autocomplete="email" required>
                             </div>
                             <div class="form-group">
                                 <label for="register-firstname">First Name</label>
-                                <input type="text" id="register-firstname" class="form-control" placeholder="First name" required>
+                                <input type="text" id="register-firstname" class="form-control" placeholder="First name" autocomplete="given-name" required>
                             </div>
                             <div class="form-group">
                                 <label for="register-lastname">Last Name</label>
-                                <input type="text" id="register-lastname" class="form-control" placeholder="Last name" required>
+                                <input type="text" id="register-lastname" class="form-control" placeholder="Last name" autocomplete="family-name" required>
                             </div>
                             <div class="form-group">
                                 <label for="register-password">Password</label>
-                                <input type="password" id="register-password" class="form-control" placeholder="Create password" required>
+                                <input type="password" id="register-password" class="form-control" placeholder="Create password" autocomplete="new-password" required>
                             </div>
                             <button type="submit" class="btn btn-success" style="width: 100%;">
                                 <i class="fas fa-user-check"></i> Register
@@ -133,8 +134,10 @@
                                 <textarea id="article-content" class="form-control" placeholder="Enter article content" required rows="4"></textarea>
                             </div>
                             <div class="form-group">
-                                <label for="article-course-id">Course ID</label>
-                                <input type="text" id="article-course-id" class="form-control" placeholder="Enter course ID" required>
+                                <label for="article-course-id">Select Course</label>
+                                <select id="article-course-id" class="form-control" required>
+                                    <option value="">Select Course</option>
+                                </select>
                             </div>
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-plus-circle"></i> Create Article
@@ -157,8 +160,10 @@
                                 <input type="file" id="pdf-file" class="form-control" accept="application/pdf" required>
                             </div>
                             <div class="form-group">
-                                <label for="pdf-course-id">Course ID</label>
-                                <input type="text" id="pdf-course-id" class="form-control" placeholder="Enter course ID" required>
+                                <label for="pdf-course-id">Select Course</label>
+                                <select id="pdf-course-id" class="form-control" required>
+                                    <option value="">Select Course</option>
+                                </select>
                             </div>
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-upload"></i> Upload PDF
@@ -169,6 +174,15 @@
                 <h2 style="margin: 30px 0 15px;">PDF Resources</h2>
                 <div id="pdfs-list" class="grid"></div>
             </div>
+
+            <div id="article-modal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close-modal" id="close-article-modal">&times;</span>
+        <h3 id="modal-article-title"></h3>
+        <div id="modal-article-meta"></div>
+        <p id="modal-article-content"></p>
+    </div>
+</div>
 
             <!-- Admin Section -->
             <div id="admin-section" class="admin-section hidden">
