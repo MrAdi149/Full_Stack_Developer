@@ -10,7 +10,7 @@
 </head>
 <body>
     <div class="container">
-        <header>
+        <header class="glass-header">
             <div class="logo">
                 <i class="fas fa-book-open"></i>
                 <h1>BackBencher EMS</h1>
@@ -21,9 +21,9 @@
         </header>
 
         <!-- Authentication Section -->
-        <div id="auth-section">
+        <div id="auth-section" class="fade-in">
             <div class="auth-container">
-                <div class="auth-card">
+                <div class="auth-card glass-card">
                     <div class="auth-header">
                         <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
                     </div>
@@ -37,14 +37,14 @@
                                 <label for="login-password">Password</label>
                                 <input type="password" id="login-password" class="form-control" placeholder="Enter password" autocomplete="current-password" required>
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <button type="submit" class="btn btn-primary full-width">
                                 <i class="fas fa-lock"></i> Login
                             </button>
                         </form>
                     </div>
                 </div>
 
-                <div class="auth-card">
+                <div class="auth-card glass-card">
                     <div class="auth-header">
                         <h2><i class="fas fa-user-plus"></i> Register</h2>
                     </div>
@@ -70,7 +70,7 @@
                                 <label for="register-password">Password</label>
                                 <input type="password" id="register-password" class="form-control" placeholder="Create password" autocomplete="new-password" required>
                             </div>
-                            <button type="submit" class="btn btn-success" style="width: 100%;">
+                            <button type="submit" class="btn btn-success full-width">
                                 <i class="fas fa-user-check"></i> Register
                             </button>
                         </form>
@@ -81,16 +81,16 @@
         </div>
 
         <!-- Main Application Section -->
-        <div id="main-section" class="hidden">
-            <div class="tabs">
-                <div class="tab active" data-tab="courses">Courses</div>
-                <div class="tab" data-tab="articles">Articles</div>
-                <div class="tab" data-tab="pdfs">PDF Resources</div>
+        <div id="main-section" class="hidden fade-in">
+            <div class="tabs glass-tabs">
+                <div class="tab active" data-tab="courses"><i class="fas fa-book"></i> Courses</div>
+                <div class="tab" data-tab="articles"><i class="fas fa-file-alt"></i> Articles</div>
+                <div class="tab" data-tab="pdfs"><i class="fas fa-file-pdf"></i> PDF Resources</div>
             </div>
 
             <!-- Courses Tab -->
             <div class="tab-content active" id="courses-tab">
-                <div class="card">
+                <div class="card glass-card">
                     <div class="card-header">Add New Course</div>
                     <div class="card-body">
                         <form id="add-course-form">
@@ -115,13 +115,13 @@
                         </form>
                     </div>
                 </div>
-                <h2 style="margin: 30px 0 15px;">Available Courses</h2>
+                <h2 class="section-title">Available Courses</h2>
                 <div id="courses-list" class="grid"></div>
             </div>
 
             <!-- Articles Tab -->
             <div class="tab-content" id="articles-tab">
-                <div class="card">
+                <div class="card glass-card">
                     <div class="card-header">Create New Article</div>
                     <div class="card-body">
                         <form id="add-article-form">
@@ -145,13 +145,13 @@
                         </form>
                     </div>
                 </div>
-                <h2 style="margin: 30px 0 15px;">Latest Articles</h2>
+                <h2 class="section-title">Latest Articles</h2>
                 <div id="articles-list" class="grid"></div>
             </div>
 
             <!-- PDFs Tab -->
             <div class="tab-content" id="pdfs-tab">
-                <div class="card">
+                <div class="card glass-card">
                     <div class="card-header">Upload PDF Resource</div>
                     <div class="card-body">
                         <form id="upload-pdf-form" enctype="multipart/form-data">
@@ -171,21 +171,22 @@
                         </form>
                     </div>
                 </div>
-                <h2 style="margin: 30px 0 15px;">PDF Resources</h2>
+                <h2 class="section-title">PDF Resources</h2>
                 <div id="pdfs-list" class="grid"></div>
             </div>
 
+            <!-- Article Modal -->
             <div id="article-modal" class="modal hidden">
-    <div class="modal-content">
-        <span class="close-modal" id="close-article-modal">&times;</span>
-        <h3 id="modal-article-title"></h3>
-        <div id="modal-article-meta"></div>
-        <p id="modal-article-content"></p>
-    </div>
-</div>
+                <div class="modal-content glass-card">
+                    <span class="close-modal" id="close-article-modal">&times;</span>
+                    <h3 id="modal-article-title"></h3>
+                    <div id="modal-article-meta"></div>
+                    <p id="modal-article-content"></p>
+                </div>
+            </div>
 
             <!-- Admin Section -->
-            <div id="admin-section" class="admin-section hidden">
+            <div id="admin-section" class="admin-section hidden glass-card">
                 <div class="admin-header">
                     <h2><i class="fas fa-lock"></i> Admin Panel</h2>
                     <div>
@@ -197,13 +198,13 @@
                         </button>
                     </div>
                 </div>
-                <div class="card">
+                <div class="card glass-card">
                     <div class="card-header">User Management</div>
                     <div class="card-body">
                         <div id="users-list" class="grid"></div>
                     </div>
                 </div>
-                <div class="card">
+                <div class="card glass-card">
                     <div class="card-header">Reported PDFs</div>
                     <div class="card-body">
                         <div id="reported-list" class="grid"></div>
@@ -212,6 +213,14 @@
             </div>
         </div>
     </div>
+    <footer>
+        <div class="footer-inner">
+            <span>Made with <i class="fas fa-heart" style="color:#f72585"></i> by BackBenchers &copy; 2025</span>
+            <span>
+                <a href="https://github.com/MrAdi149" target="_blank"><i class="fab fa-github"></i></a>
+            </span>
+        </div>
+    </footer>
     <script src="app.js"></script>
 </body>
 </html>

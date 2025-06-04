@@ -269,24 +269,65 @@ async function loadPdfs() {
     }
 }
 
-// ---- Article Modal Logic ----
+// ---- Article Modal Logic (Updated UI) ----
 function showArticleModal(article) {
-    document.getElementById("modal-article-title").textContent = article.title;
-    document.getElementById("modal-article-content").textContent = article.content;
+    // Set modal content with enhanced HTML and styles
+    document.getElementById("modal-article-title").innerHTML = `
+        <span style="font-size:1.5rem;font-weight:600;color:#4A90E2;">
+            <i class="fas fa-file-alt" style="margin-right:6px;color:#FFA726;"></i>${article.title}
+        </span>
+    `;
+
+    // Beautiful meta badges
     document.getElementById("modal-article-meta").innerHTML = `
-        <div class="meta">
-            <span>Course: ${article.course?.id || 'N/A'}</span>
-            <span>ID: ${article.id}</span>
-            <span>By: ${article.author?.username || 'N/A'}</span>
-            <span>Created: ${article.createdAt ? new Date(article.createdAt).toLocaleString() : ''}</span>
+        <div class="meta" style="margin:12px 0 16px;display: flex;flex-wrap:wrap;gap:8px;">
+            <span class="badge" style="background:#e3f2fd;color:#1976D2;padding:4px 10px;border-radius:16px;">
+                <i class="fas fa-hashtag"></i> ID: ${article.id}
+            </span>
+            <span class="badge" style="background:#ede7f6;color:#6a1b9a;padding:4px 10px;border-radius:16px;">
+                <i class="fas fa-book"></i> Course: ${article.course?.id || 'N/A'}
+            </span>
+            <span class="badge" style="background:#fff3e0;color:#f57c00;padding:4px 10px;border-radius:16px;">
+                <i class="fas fa-user"></i> By: ${article.author?.username || 'N/A'}
+            </span>
+            <span class="badge" style="background:#e8f5e9;color:#388e3c;padding:4px 10px;border-radius:16px;">
+                <i class="fas fa-clock"></i> ${article.createdAt ? new Date(article.createdAt).toLocaleString() : ''}
+            </span>
         </div>
     `;
-    document.getElementById("article-modal").classList.add('active');
-    document.getElementById("article-modal").classList.remove('hidden');
+
+    // Article content with better presentation
+    document.getElementById("modal-article-content").innerHTML = `
+        <div style="
+            background: #fafbfc;
+            border-left: 4px solid #42a5f5;
+            padding: 18px 20px;
+            margin: 10px 0 0;
+            border-radius: 8px;
+            font-size: 1.08rem;
+            color: #263238;
+            line-height: 1.7;
+            max-height: 350px;
+            overflow-y: auto;
+            box-shadow: 0 2px 8px 0 rgba(66,165,245,.06);
+        ">
+            ${article.content.replace(/\n/g, '<br>')}
+        </div>
+    `;
+
+    // Activate modal with fade-in animation
+    const modal = document.getElementById("article-modal");
+    modal.classList.add('active');
+    modal.classList.remove('hidden');
+    modal.style.animation = "modalFadeIn 0.25s";
 }
+
+// Clear animation when closing
 function closeArticleModal() {
-    document.getElementById("article-modal").classList.remove('active');
-    document.getElementById("article-modal").classList.add('hidden');
+    const modal = document.getElementById("article-modal");
+    modal.classList.remove('active');
+    modal.classList.add('hidden');
+    modal.style.animation = "";
 }
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("close-article-modal").addEventListener('click', closeArticleModal);
