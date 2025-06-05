@@ -83,7 +83,7 @@ async function login(username, password) {
         });
 
         const data = await handleApiResponse(response, 'Login failed');
-        
+
         token = data.token;
         currentUser = {
             username,
@@ -117,17 +117,21 @@ function initUI() {
     const mainSection = document.getElementById("main-section");
     const logoutBtn = document.getElementById("logout-btn");
     const adminSection = document.getElementById("admin-section");
+    const adminTabBtn = document.getElementById("admin-tab-btn");
 
     if (token && currentUser) {
         hide(authSection);
         show(mainSection);
         show(logoutBtn);
+        // Only show admin tab if ADMIN
         if (currentUser.role === 'ADMIN') {
             userRole = 'ADMIN';
             if (adminSection) show(adminSection);
+            if (adminTabBtn) adminTabBtn.style.display = "";
         } else {
             userRole = currentUser.role;
             if (adminSection) hide(adminSection);
+            if (adminTabBtn) adminTabBtn.style.display = "none";
         }
         loadInitialData();
         updateDashboardUser();
@@ -136,6 +140,7 @@ function initUI() {
         hide(mainSection);
         hide(logoutBtn);
         if (adminSection) hide(adminSection);
+        if (adminTabBtn) adminTabBtn.style.display = "none";
     }
 }
 
@@ -160,10 +165,10 @@ async function loadCourses() {
     try {
         const response = await fetch(`${API}/courses`, { headers: authHeaders() });
         const courses = await handleApiResponse(response, 'Failed to load courses');
-        
+
         const list = document.getElementById("courses-list");
         if (!list) return;
-        
+
         list.innerHTML = "";
         courses.forEach(course => {
             const courseCard = document.createElement('div');
@@ -190,7 +195,7 @@ async function populateCourseSelects() {
     try {
         const response = await fetch(`${API}/courses`, { headers: authHeaders() });
         const courses = await handleApiResponse(response, 'Failed to load courses');
-        
+
         ['article-course-id', 'pdf-course-id'].forEach(id => {
             const select = document.getElementById(id);
             if (select) {
@@ -420,12 +425,12 @@ function closeArticleModal() {
 }
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("close-article-modal").addEventListener('click', closeArticleModal);
-    document.getElementById("article-modal").addEventListener('click', function(e) {
+    document.getElementById("article-modal").addEventListener('click', function (e) {
         if (e.target === this) closeArticleModal();
     });
     // Course articles modal
     document.getElementById("close-course-articles-modal").addEventListener('click', closeCourseArticlesModal);
-    document.getElementById("course-articles-modal").addEventListener('click', function(e) {
+    document.getElementById("course-articles-modal").addEventListener('click', function (e) {
         if (e.target === this) closeCourseArticlesModal();
     });
 });
@@ -566,7 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const file = document.getElementById("pdf-file").files[0];
         const courseId = document.getElementById("pdf-course-id").value;
-        
+
         if (!file) {
             showMessage('Please select a PDF file to upload.');
             return;
@@ -579,12 +584,12 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage('Please select a course for the PDF.');
             return;
         }
-        
+
         try {
             const formData = new FormData();
             formData.append("file", file);
             formData.append("courseId", courseId);
-            
+
             const response = await fetch(`${API}/pdf/upload`, {
                 method: "POST",
                 headers: {
@@ -593,12 +598,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: formData
             });
-            
+
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(errorText || 'Failed to upload PDF');
             }
-            
+
             await loadPdfs();
             document.getElementById("upload-pdf-form").reset();
             showMessage('PDF uploaded successfully!', false);

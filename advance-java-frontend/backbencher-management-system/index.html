@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BackBencher EMS - Modern Education Platform</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <header>
         <div class="logo">
             <i class="fas fa-book-open"></i>
-             <h1>Learnify</h1>
+            <h1>Learnify</h1>
         </div>
         <button id="logout-btn" class="btn btn-danger hidden">
             <i class="fas fa-sign-out-alt"></i> Logout
@@ -39,7 +42,7 @@
                     <i class="fas fa-file-pdf"></i>
                     <span>PDF Resources</span>
                 </div>
-                <div class="tab" data-tab="admin">
+                <div class="tab" id="admin-tab-btn" data-tab="admin">
                     <i class="fas fa-lock"></i>
                     <span>Admin Panel</span>
                 </div>
@@ -60,11 +63,13 @@
                             <form id="login-form" autocomplete="off">
                                 <div class="form-group">
                                     <label for="login-username">Username</label>
-                                    <input type="text" id="login-username" class="form-control input-lg" placeholder="Enter username" autocomplete="username" required>
+                                    <input type="text" id="login-username" class="form-control input-lg"
+                                        placeholder="Enter username" autocomplete="username" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="login-password">Password</label>
-                                    <input type="password" id="login-password" class="form-control input-lg" placeholder="Enter password" autocomplete="current-password" required>
+                                    <input type="password" id="login-password" class="form-control input-lg"
+                                        placeholder="Enter password" autocomplete="current-password" required>
                                 </div>
                                 <button type="submit" class="btn btn-primary" style="width: 100%;">
                                     <i class="fas fa-lock"></i> Login
@@ -81,23 +86,28 @@
                             <form id="register-form" autocomplete="off">
                                 <div class="form-group">
                                     <label for="register-username">Username</label>
-                                    <input type="text" id="register-username" class="form-control input-lg" placeholder="Choose username" autocomplete="username" required>
+                                    <input type="text" id="register-username" class="form-control input-lg"
+                                        placeholder="Choose username" autocomplete="username" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="register-email">Email</label>
-                                    <input type="email" id="register-email" class="form-control input-lg" placeholder="Enter email" autocomplete="email" required>
+                                    <input type="email" id="register-email" class="form-control input-lg"
+                                        placeholder="Enter email" autocomplete="email" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="register-firstname">First Name</label>
-                                    <input type="text" id="register-firstname" class="form-control input-lg" placeholder="First name" autocomplete="given-name" required>
+                                    <input type="text" id="register-firstname" class="form-control input-lg"
+                                        placeholder="First name" autocomplete="given-name" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="register-lastname">Last Name</label>
-                                    <input type="text" id="register-lastname" class="form-control input-lg" placeholder="Last name" autocomplete="family-name" required>
+                                    <input type="text" id="register-lastname" class="form-control input-lg"
+                                        placeholder="Last name" autocomplete="family-name" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="register-password">Password</label>
-                                    <input type="password" id="register-password" class="form-control input-lg" placeholder="Create password" autocomplete="new-password" required>
+                                    <input type="password" id="register-password" class="form-control input-lg"
+                                        placeholder="Create password" autocomplete="new-password" required>
                                 </div>
                                 <button type="submit" class="btn btn-success" style="width: 100%;">
                                     <i class="fas fa-user-check"></i> Register
@@ -117,7 +127,7 @@
                         <h2 id="welcome-username">Welcome back!</h2>
                         <p id="welcome-message">You have 3 new resources this week.</p>
                     </div>
-                    
+
                     <div class="stats-container">
                         <div class="stat-card">
                             <div class="stat-icon">
@@ -134,11 +144,11 @@
                             <div class="stat-label">Learning Resources</div>
                         </div>
                     </div>
-                    
+
                     <div class="section-header">
                         <h2><i class="fas fa-book-open"></i> Recent Courses</h2>
                     </div>
-                    
+
                     <div class="grid" id="recent-courses-list"></div>
                 </div>
 
@@ -147,14 +157,15 @@
                     <div class="section-header">
                         <h2><i class="fas fa-book"></i> Courses</h2>
                     </div>
-                    
+
                     <div class="card">
                         <div class="card-header">Add New Course</div>
                         <div class="card-body">
                             <form id="add-course-form">
                                 <div class="form-group">
                                     <label for="course-title">Course Title</label>
-                                    <input type="text" id="course-title" class="form-control input-lg" placeholder="Enter course title" required>
+                                    <input type="text" id="course-title" class="form-control input-lg"
+                                        placeholder="Enter course title" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="course-type">Course Type</label>
@@ -165,7 +176,8 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="course-description">Description</label>
-                                    <textarea id="course-description" class="form-control textarea-lg" placeholder="Enter course description"></textarea>
+                                    <textarea id="course-description" class="form-control textarea-lg"
+                                        placeholder="Enter course description"></textarea>
                                 </div>
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-plus-circle"></i> Add Course
@@ -173,11 +185,11 @@
                             </form>
                         </div>
                     </div>
-                    
+
                     <div class="section-header">
                         <h2><i class="fas fa-bookmark"></i> Available Courses</h2>
                     </div>
-                    
+
                     <div id="courses-list" class="grid"></div>
                 </div>
 
@@ -186,18 +198,20 @@
                     <div class="section-header">
                         <h2><i class="fas fa-file-alt"></i> Articles</h2>
                     </div>
-                    
+
                     <div class="card">
                         <div class="card-header">Create New Article</div>
                         <div class="card-body">
                             <form id="add-article-form">
                                 <div class="form-group">
                                     <label for="article-title">Article Title</label>
-                                    <input type="text" id="article-title" class="form-control input-lg" placeholder="Enter article title" required>
+                                    <input type="text" id="article-title" class="form-control input-lg"
+                                        placeholder="Enter article title" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="article-content">Content</label>
-                                    <textarea id="article-content" class="form-control textarea-lg" placeholder="Enter article content" required rows="6"></textarea>
+                                    <textarea id="article-content" class="form-control textarea-lg"
+                                        placeholder="Enter article content" required rows="6"></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label for="article-course-id">Select Course</label>
@@ -211,11 +225,11 @@
                             </form>
                         </div>
                     </div>
-                    
+
                     <div class="section-header">
                         <h2><i class="fas fa-newspaper"></i> Latest Articles</h2>
                     </div>
-                    
+
                     <div id="articles-grouped-list"></div>
                 </div>
 
@@ -224,14 +238,15 @@
                     <div class="section-header">
                         <h2><i class="fas fa-file-pdf"></i> PDF Resources</h2>
                     </div>
-                    
+
                     <div class="card">
                         <div class="card-header">Upload PDF Resource</div>
                         <div class="card-body">
                             <form id="upload-pdf-form" enctype="multipart/form-data">
                                 <div class="form-group">
                                     <label for="pdf-file">Select PDF File</label>
-                                    <input type="file" id="pdf-file" class="form-control input-lg" accept="application/pdf" required>
+                                    <input type="file" id="pdf-file" class="form-control input-lg"
+                                        accept="application/pdf" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="pdf-course-id">Select Course</label>
@@ -245,11 +260,11 @@
                             </form>
                         </div>
                     </div>
-                    
+
                     <div class="section-header">
                         <h2><i class="fas fa-archive"></i> PDF Library</h2>
                     </div>
-                    
+
                     <div id="pdfs-list" class="grid"></div>
                 </div>
 
@@ -267,21 +282,21 @@
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div class="section-header">
                             <h2><i class="fas fa-user-cog"></i> User Management</h2>
                         </div>
-                        
+
                         <div class="card">
                             <div class="card-body">
                                 <div id="users-list" class="grid"></div>
                             </div>
                         </div>
-                        
+
                         <div class="section-header">
                             <h2><i class="fas fa-exclamation-triangle"></i> Reported Content</h2>
                         </div>
-                        
+
                         <div class="card">
                             <div class="card-body">
                                 <div id="reported-list" class="grid"></div>
@@ -313,4 +328,5 @@
     </div>
     <script src="app.js"></script>
 </body>
+
 </html>
