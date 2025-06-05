@@ -205,14 +205,48 @@ async function populateCourseSelects() {
     }
 }
 
-async function loadArticles() {
-    try {
-        const response = await fetch(`${API}/articles`, { headers: authHeaders() });
-        const articles = await handleApiResponse(response, 'Failed to load articles');
-        const list = document.getElementById("articles-list");
-        if (!list) return;
-        list.innerHTML = "";
-        articles.forEach(a => {
+// ---- Group Articles by Course ----
+function groupArticlesByCourse(articles, courses) {
+    const courseMap = {};
+    courses.forEach(c => {
+        courseMap[c.id] = c;
+    });
+    // Group articles by courseId
+    const grouped = {};
+    articles.forEach(article => {
+        const courseId = article.course?.id || 'none';
+        if (!grouped[courseId]) grouped[courseId] = [];
+        grouped[courseId].push(article);
+    });
+    return { grouped, courseMap };
+}
+
+// ---- Articles Tab: Grouped Rendering ----
+function renderGroupedArticles() {
+    const articles = window._articlesData || [];
+    const courses = window._coursesData || [];
+    const { grouped, courseMap } = groupArticlesByCourse(articles, courses);
+
+    const groupedList = document.getElementById("articles-grouped-list");
+    if (!groupedList) return;
+    groupedList.innerHTML = "";
+
+    // Show all courses with articles, plus 'No Course' group if any.
+    Object.keys(grouped).forEach(courseId => {
+        const course = courseMap[courseId];
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'course-group';
+
+        groupDiv.innerHTML = `
+            <div class="course-group-title">
+                <i class="fas fa-book"></i> 
+                ${course ? `${course.title} (${course.type})` : 'Unassigned / No Course'}
+            </div>
+            <div class="course-articles-list"></div>
+        `;
+
+        const listDiv = groupDiv.querySelector('.course-articles-list');
+        grouped[courseId].forEach(a => {
             const articleCard = document.createElement('div');
             articleCard.className = 'item-card article-card';
             articleCard.style.cursor = 'pointer';
@@ -225,97 +259,28 @@ async function loadArticles() {
                     <span>By: ${a.author?.username || 'N/A'}</span>
                 </div>
             `;
-            // Attach click event for modal
             articleCard.addEventListener('click', () => showArticleModal(a));
-            list.appendChild(articleCard);
+            listDiv.appendChild(articleCard);
         });
-        // For dashboard stats
+
+        groupedList.appendChild(groupDiv);
+    });
+}
+
+// ---- Articles Loader (overrides default) ----
+async function loadArticles() {
+    try {
+        const response = await fetch(`${API}/articles`, { headers: authHeaders() });
+        const articles = await handleApiResponse(response, 'Failed to load articles');
         window._articlesData = articles;
+        renderGroupedArticles();
     } catch (error) {
         showMessage(error.message);
     }
 }
 
-async function loadPdfs() {
-    if (!token) return;
-    try {
-        const response = await fetch(`${API}/pdf`, { headers: authHeaders() });
-        const pdfs = await handleApiResponse(response, 'Failed to load PDFs');
-        const list = document.getElementById("pdfs-list");
-        if (!list) return;
-        list.innerHTML = "";
-        pdfs.forEach(pdf => {
-            const courseLabel = pdf.course && pdf.course.title
-                ? `${pdf.course.title} (${pdf.course.id})`
-                : (pdf.course?.id ? `ID: ${pdf.course.id}` : "N/A");
-            const byLabel = pdf.user && pdf.user.username ? pdf.user.username : "N/A";
-            // PDF file endpoint
-            const pdfUrl = `${API}/pdf/file/${pdf.id}`;
-            const pdfCard = document.createElement('div');
-            pdfCard.className = 'item-card pdf-card';
-            pdfCard.style.cursor = 'pointer';
-            pdfCard.innerHTML = `
-                <h3>
-                    <i class="fas fa-file-pdf"></i>
-                    <span style="color:#f44336;text-decoration:underline;">${pdf.fileName}</span>
-                </h3>
-                <p>${pdf.extractedText ? pdf.extractedText.substring(0, 100) + '...' : ''}</p>
-                <div class="meta">
-                    <span>Course: ${courseLabel}</span>
-                    <span>ID: ${pdf.id}</span>
-                    <span>By: ${byLabel}</span>
-                </div>
-            `;
-            pdfCard.addEventListener('click', () => {
-                window.open(pdfUrl, '_blank'); // Open the PDF in a new tab
-            });
-            list.appendChild(pdfCard);
-        });
-        // For dashboard stats
-        window._pdfsData = pdfs;
-    } catch (error) {
-        showMessage(error.message);
-    }
-}
-
-// ---- Dashboard Stats ----
-async function updateDashboardStats() {
-    // Use previously fetched data if available, or fetch
-    let courses = window._coursesData, articles = window._articlesData, pdfs = window._pdfsData;
-    try {
-        if (!courses) {
-            const response = await fetch(`${API}/courses`, { headers: authHeaders() });
-            courses = await handleApiResponse(response, 'Failed to load courses');
-        }
-        if (!articles) {
-            const response = await fetch(`${API}/articles`, { headers: authHeaders() });
-            articles = await handleApiResponse(response, 'Failed to load articles');
-        }
-        if (!pdfs) {
-            const response = await fetch(`${API}/pdf`, { headers: authHeaders() });
-            pdfs = await handleApiResponse(response, 'Failed to load PDFs');
-        }
-    } catch {
-        // Ignore errors here, just don't update stats
-    }
-    document.getElementById('stat-courses').textContent = courses ? courses.length : '0';
-    document.getElementById('stat-articles').textContent = articles ? articles.length : '0';
-    // Demo values for assignments/certificates, replace with real API if available
-    document.getElementById('stat-pending').textContent = '2';
-    document.getElementById('stat-certificates').textContent = '1';
-}
-
-function updateDashboardUser() {
-    if (!currentUser) return;
-    const usernameEl = document.getElementById('welcome-username');
-    if (usernameEl) {
-        usernameEl.textContent = `Welcome back, ${currentUser.username || 'User'}!`;
-    }
-    // Optionally update the welcome message with more info if available
-}
-
+// ---- Dashboard Courses: Click to Show Articles Modal ----
 async function updateDashboardRecentCourses() {
-    // Show latest 3 courses in dashboard
     let courses = window._coursesData;
     if (!courses) {
         try {
@@ -330,7 +295,8 @@ async function updateDashboardRecentCourses() {
         recentList.innerHTML = '';
         courses.slice(-3).reverse().forEach(course => {
             const courseCard = document.createElement('div');
-            courseCard.className = 'item-card';
+            courseCard.className = 'item-card dashboard-course-card';
+            courseCard.style.cursor = 'pointer';
             courseCard.innerHTML = `
                 <h3><i class="fas fa-book"></i> ${course.title}</h3>
                 <p>${course.description || 'No description available'}</p>
@@ -340,9 +306,56 @@ async function updateDashboardRecentCourses() {
                     <span>Created: ${course.createdAt ? new Date(course.createdAt).toLocaleDateString() : ''}</span>
                 </div>
             `;
+            // Add click to show articles for that course
+            courseCard.addEventListener('click', () => showCourseArticlesModal(course));
             recentList.appendChild(courseCard);
         });
     }
+}
+
+// ---- Show Course Articles Modal ----
+function showCourseArticlesModal(course) {
+    // Get all articles for this course
+    const articles = (window._articlesData || []).filter(a => a.course?.id === course.id);
+
+    document.getElementById("modal-course-title").innerHTML = `
+        <span style="font-size:1.2rem;font-weight:600;color:#1976D2;">
+            <i class="fas fa-book" style="margin-right:6px;"></i> ${course.title} (${course.type})
+        </span>
+    `;
+    const modalList = document.getElementById("modal-course-articles-list");
+    modalList.innerHTML = "";
+    if (articles.length === 0) {
+        modalList.innerHTML = "<div style='color:#888;padding:14px;'>No articles for this course.</div>";
+    } else {
+        articles.forEach(article => {
+            const articleCard = document.createElement('div');
+            articleCard.className = 'item-card article-card';
+            articleCard.style.marginBottom = "10px";
+            articleCard.style.cursor = 'pointer';
+            articleCard.innerHTML = `
+                <h3><i class="fas fa-file-alt"></i> ${article.title}</h3>
+                <p>${article.content.length > 100 ? article.content.slice(0, 100) + '...' : article.content}</p>
+                <div class="meta">
+                    <span>ID: ${article.id}</span>
+                    <span>By: ${article.author?.username || 'N/A'}</span>
+                </div>
+            `;
+            articleCard.addEventListener('click', () => showArticleModal(article));
+            modalList.appendChild(articleCard);
+        });
+    }
+    const modal = document.getElementById("course-articles-modal");
+    modal.classList.add('active');
+    modal.classList.remove('hidden');
+    modal.style.animation = "modalFadeIn 0.25s";
+}
+// ---- Hide Course Articles Modal ----
+function closeCourseArticlesModal() {
+    const modal = document.getElementById("course-articles-modal");
+    modal.classList.remove('active');
+    modal.classList.add('hidden');
+    modal.style.animation = "";
 }
 
 // ---- Article Modal Logic (Updated UI) ----
@@ -410,6 +423,11 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("article-modal").addEventListener('click', function(e) {
         if (e.target === this) closeArticleModal();
     });
+    // Course articles modal
+    document.getElementById("close-course-articles-modal").addEventListener('click', closeCourseArticlesModal);
+    document.getElementById("course-articles-modal").addEventListener('click', function(e) {
+        if (e.target === this) closeCourseArticlesModal();
+    });
 });
 
 // ---- Event Listeners ----
@@ -432,6 +450,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateDashboardStats();
                 updateDashboardUser();
                 updateDashboardRecentCourses();
+            }
+            // If articles tab, re-render grouped articles
+            if (tabId === 'articles') {
+                renderGroupedArticles();
             }
         });
     });
@@ -695,5 +717,84 @@ async function loadReportedContent() {
         });
     } catch (error) {
         showMessage('Failed to load reported content. Please try again.');
+    }
+}
+
+// ---- Dashboard Stats ----
+async function updateDashboardStats() {
+    // Use previously fetched data if available, or fetch
+    let courses = window._coursesData, articles = window._articlesData, pdfs = window._pdfsData;
+    try {
+        if (!courses) {
+            const response = await fetch(`${API}/courses`, { headers: authHeaders() });
+            courses = await handleApiResponse(response, 'Failed to load courses');
+        }
+        if (!articles) {
+            const response = await fetch(`${API}/articles`, { headers: authHeaders() });
+            articles = await handleApiResponse(response, 'Failed to load articles');
+        }
+        if (!pdfs) {
+            const response = await fetch(`${API}/pdf`, { headers: authHeaders() });
+            pdfs = await handleApiResponse(response, 'Failed to load PDFs');
+        }
+    } catch {
+        // Ignore errors here, just don't update stats
+    }
+    document.getElementById('stat-courses').textContent = courses ? courses.length : '0';
+    document.getElementById('stat-articles').textContent = articles ? articles.length : '0';
+    // Demo values for assignments/certificates, replace with real API if available
+    if (document.getElementById('stat-pending')) document.getElementById('stat-pending').textContent = '2';
+    if (document.getElementById('stat-certificates')) document.getElementById('stat-certificates').textContent = '1';
+}
+
+function updateDashboardUser() {
+    if (!currentUser) return;
+    const usernameEl = document.getElementById('welcome-username');
+    if (usernameEl) {
+        usernameEl.textContent = `Welcome back, ${currentUser.username || 'User'}!`;
+    }
+    // Optionally update the welcome message with more info if available
+}
+
+// ---- PDFs Loader ----
+async function loadPdfs() {
+    if (!token) return;
+    try {
+        const response = await fetch(`${API}/pdf`, { headers: authHeaders() });
+        const pdfs = await handleApiResponse(response, 'Failed to load PDFs');
+        const list = document.getElementById("pdfs-list");
+        if (!list) return;
+        list.innerHTML = "";
+        pdfs.forEach(pdf => {
+            const courseLabel = pdf.course && pdf.course.title
+                ? `${pdf.course.title} (${pdf.course.id})`
+                : (pdf.course?.id ? `ID: ${pdf.course.id}` : "N/A");
+            const byLabel = pdf.user && pdf.user.username ? pdf.user.username : "N/A";
+            // PDF file endpoint
+            const pdfUrl = `${API}/pdf/file/${pdf.id}`;
+            const pdfCard = document.createElement('div');
+            pdfCard.className = 'item-card pdf-card';
+            pdfCard.style.cursor = 'pointer';
+            pdfCard.innerHTML = `
+                <h3>
+                    <i class="fas fa-file-pdf"></i>
+                    <span style="color:#f44336;text-decoration:underline;">${pdf.fileName}</span>
+                </h3>
+                <p>${pdf.extractedText ? pdf.extractedText.substring(0, 100) + '...' : ''}</p>
+                <div class="meta">
+                    <span>Course: ${courseLabel}</span>
+                    <span>ID: ${pdf.id}</span>
+                    <span>By: ${byLabel}</span>
+                </div>
+            `;
+            pdfCard.addEventListener('click', () => {
+                window.open(pdfUrl, '_blank'); // Open the PDF in a new tab
+            });
+            list.appendChild(pdfCard);
+        });
+        // For dashboard stats
+        window._pdfsData = pdfs;
+    } catch (error) {
+        showMessage(error.message);
     }
 }
