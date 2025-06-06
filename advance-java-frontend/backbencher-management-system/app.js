@@ -153,7 +153,7 @@ async function loadInitialData() {
             loadPdfs(),
             populateCourseSelects(),
             updateDashboardStats(),
-            updateDashboardRecentCourses()
+            updateDashboardRecentCourses(),
         ]);
     } catch (error) {
         console.error('Error loading initial data:', error);
@@ -172,7 +172,8 @@ async function loadCourses() {
         list.innerHTML = "";
         courses.forEach(course => {
             const courseCard = document.createElement('div');
-            courseCard.className = 'item-card';
+            courseCard.className = 'item-card dashboard-course-card';
+            courseCard.style.cursor = 'pointer';
             courseCard.innerHTML = `
                 <h3><i class="fas fa-book"></i> ${course.title}</h3>
                 <p>${course.description || 'No description available'}</p>
@@ -182,9 +183,14 @@ async function loadCourses() {
                     <span>Created: ${course.createdAt ? new Date(course.createdAt).toLocaleDateString() : ''}</span>
                 </div>
             `;
+            // Show articles for this course in the courses tab only
+            courseCard.addEventListener('click', () => {
+                if (isTabActive('courses')) {
+                    showCourseArticlesInCoursesTab(course);
+                }
+            });
             list.appendChild(courseCard);
         });
-        // For dashboard stats
         window._coursesData = courses;
     } catch (error) {
         showMessage(error.message);
@@ -226,7 +232,6 @@ function groupArticlesByCourse(articles, courses) {
     return { grouped, courseMap };
 }
 
-// ---- Articles Tab: Grouped Rendering ----
 function renderGroupedArticles() {
     const articles = window._articlesData || [];
     const courses = window._coursesData || [];
@@ -236,7 +241,6 @@ function renderGroupedArticles() {
     if (!groupedList) return;
     groupedList.innerHTML = "";
 
-    // Show all courses with articles, plus 'No Course' group if any.
     Object.keys(grouped).forEach(courseId => {
         const course = courseMap[courseId];
         const groupDiv = document.createElement('div');
@@ -264,7 +268,11 @@ function renderGroupedArticles() {
                     <span>By: ${a.author?.username || 'N/A'}</span>
                 </div>
             `;
-            articleCard.addEventListener('click', () => showArticleModal(a));
+            articleCard.addEventListener('click', (event) => {
+                if (isTabActive('articles')) {
+                    showArticleModal(a);
+                }
+            });
             listDiv.appendChild(articleCard);
         });
 
@@ -272,7 +280,6 @@ function renderGroupedArticles() {
     });
 }
 
-// ---- Articles Loader (overrides default) ----
 async function loadArticles() {
     try {
         const response = await fetch(`${API}/articles`, { headers: authHeaders() });
@@ -284,7 +291,6 @@ async function loadArticles() {
     }
 }
 
-// ---- Dashboard Courses: Click to Show Articles Modal ----
 async function updateDashboardRecentCourses() {
     let courses = window._coursesData;
     if (!courses) {
@@ -311,16 +317,93 @@ async function updateDashboardRecentCourses() {
                     <span>Created: ${course.createdAt ? new Date(course.createdAt).toLocaleDateString() : ''}</span>
                 </div>
             `;
-            // Add click to show articles for that course
-            courseCard.addEventListener('click', () => showCourseArticlesModal(course));
+            courseCard.addEventListener('click', () => {
+                if (isTabActive('articles')) {
+                    showCourseArticlesModal(course);
+                }
+            });
             recentList.appendChild(courseCard);
         });
     }
 }
 
-// ---- Show Course Articles Modal ----
+// Show all articles for a course in the courses tab (not a modal)
+function showCourseArticlesInCoursesTab(course) {
+    const articles = (window._articlesData || []).filter(a => a.course?.id === course.id);
+
+    const container = document.getElementById("course-articles-in-courses-tab");
+    if (!container) return;
+    container.classList.remove('hidden');
+    container.innerHTML = `
+        <div class="section-header" style="margin-top:24px;">
+            <h3>
+                <i class="fas fa-newspaper"></i> Articles for "${course.title}" (${course.type})
+                <button class="btn btn-xs btn-secondary" id="close-course-articles-list" style="float:right;">Close</button>
+            </h3>
+        </div>
+        <div id="course-articles-list-inner"></div>
+    `;
+
+    const listDiv = container.querySelector('#course-articles-list-inner');
+    if (articles.length === 0) {
+        listDiv.innerHTML = "<div style='color:#888;padding:14px;'>No articles for this course.</div>";
+    } else {
+        articles.forEach(article => {
+            const articleCard = document.createElement('div');
+            articleCard.className = 'item-card article-card';
+            articleCard.style.marginBottom = "10px";
+            articleCard.innerHTML = `
+                <h3><i class="fas fa-file-alt"></i> ${article.title}</h3>
+                <p>${article.content.length > 100 ? article.content.slice(0, 100) + '...' : article.content}</p>
+                <div class="meta">
+                    <span>ID: ${article.id}</span>
+                    <span>By: ${article.author?.username || 'N/A'}</span>
+                </div>
+            `;
+            listDiv.appendChild(articleCard);
+        });
+    }
+    container.querySelector("#close-course-articles-list").onclick = () => {
+        container.classList.add('hidden');
+        container.innerHTML = '';
+    }
+}
+
+// Hide the articles section when switching away from the Courses tab
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const tabId = tab.getAttribute('data-tab');
+        const contentElement = document.getElementById(`${tabId}-tab`);
+        if (contentElement) {
+            contentElement.classList.add('active');
+        }
+        if (tabId !== 'courses') {
+            const container = document.getElementById("course-articles-in-courses-tab");
+            if (container) {
+                container.classList.add('hidden');
+                container.innerHTML = '';
+            }
+        }
+        if (tabId === 'dashboard') {
+            updateDashboardStats();
+            updateDashboardUser();
+            updateDashboardRecentCourses();
+        }
+        if (tabId === 'articles') {
+            renderGroupedArticles();
+        }
+        if (tabId === 'projects') {
+            const techInput = document.getElementById("project-tech-input")?.value.trim() || "";
+            const techs = techInput ? techInput.split(',').map(t => t.trim()).filter(Boolean) : [];
+            loadSuggestedProjects(techs);
+        }
+    });
+});
+
 function showCourseArticlesModal(course) {
-    // Get all articles for this course
     const articles = (window._articlesData || []).filter(a => a.course?.id === course.id);
 
     document.getElementById("modal-course-title").innerHTML = `
@@ -346,7 +429,11 @@ function showCourseArticlesModal(course) {
                     <span>By: ${article.author?.username || 'N/A'}</span>
                 </div>
             `;
-            articleCard.addEventListener('click', () => showArticleModal(article));
+            articleCard.addEventListener('click', () => {
+                if (isTabActive('articles')) {
+                    showArticleModal(article);
+                }
+            });
             modalList.appendChild(articleCard);
         });
     }
@@ -355,7 +442,7 @@ function showCourseArticlesModal(course) {
     modal.classList.remove('hidden');
     modal.style.animation = "modalFadeIn 0.25s";
 }
-// ---- Hide Course Articles Modal ----
+
 function closeCourseArticlesModal() {
     const modal = document.getElementById("course-articles-modal");
     modal.classList.remove('active');
@@ -363,16 +450,12 @@ function closeCourseArticlesModal() {
     modal.style.animation = "";
 }
 
-// ---- Article Modal Logic (Updated UI) ----
 function showArticleModal(article) {
-    // Set modal content with enhanced HTML and styles
     document.getElementById("modal-article-title").innerHTML = `
         <span style="font-size:1.5rem;font-weight:600;color:#4A90E2;">
             <i class="fas fa-file-alt" style="margin-right:6px;color:#FFA726;"></i>${article.title}
         </span>
     `;
-
-    // Beautiful meta badges
     document.getElementById("modal-article-meta").innerHTML = `
         <div class="meta" style="margin:12px 0 16px;display: flex;flex-wrap:wrap;gap:8px;">
             <span class="badge" style="background:#e3f2fd;color:#1976D2;padding:4px 10px;border-radius:16px;">
@@ -389,8 +472,6 @@ function showArticleModal(article) {
             </span>
         </div>
     `;
-
-    // Article content with better presentation
     document.getElementById("modal-article-content").innerHTML = `
         <div style="
             background: #fafbfc;
@@ -408,31 +489,171 @@ function showArticleModal(article) {
             ${article.content.replace(/\n/g, '<br>')}
         </div>
     `;
-
-    // Activate modal with fade-in animation
     const modal = document.getElementById("article-modal");
     modal.classList.add('active');
     modal.classList.remove('hidden');
     modal.style.animation = "modalFadeIn 0.25s";
 }
 
-// Clear animation when closing
 function closeArticleModal() {
     const modal = document.getElementById("article-modal");
     modal.classList.remove('active');
     modal.classList.add('hidden');
     modal.style.animation = "";
 }
+
+function isTabActive(tabName) {
+    const tabContent = document.getElementById(`${tabName}-tab`);
+    return tabContent && tabContent.classList.contains('active');
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("close-article-modal").addEventListener('click', closeArticleModal);
     document.getElementById("article-modal").addEventListener('click', function (e) {
         if (e.target === this) closeArticleModal();
     });
-    // Course articles modal
     document.getElementById("close-course-articles-modal").addEventListener('click', closeCourseArticlesModal);
     document.getElementById("course-articles-modal").addEventListener('click', function (e) {
         if (e.target === this) closeCourseArticlesModal();
     });
+});
+
+// ---- Project Ideas Tab Logic ----
+async function loadSuggestedProjects(techs) {
+    try {
+        const response = await fetch(`${API}/projects/suggest`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", ...(token && { Authorization: `Bearer ${token}` }) },
+            body: JSON.stringify(techs)
+        });
+        const projects = await handleApiResponse(response, 'Failed to fetch project ideas');
+        renderSuggestedProjects(projects, techs);
+    } catch (error) {
+        showMessage(error.message || 'Failed to fetch project ideas.');
+    }
+}
+
+function renderSuggestedProjects(projects, userTechs) {
+    const list = document.getElementById("suggested-projects-list");
+    list.innerHTML = "";
+    if (!projects.length) {
+        list.innerHTML = "<div style='color:#888;padding:14px;'>No projects found for your technology stack. Try adding more technologies!</div>";
+        return;
+    }
+    projects.forEach(project => {
+        const card = document.createElement('div');
+        card.className = 'item-card project-card';
+        card.style.cursor = 'pointer';
+        card.innerHTML = `
+            <h3><i class="fas fa-lightbulb"></i> ${project.title}</h3>
+            <p>${project.summary || 'No summary'}</p>
+            <div class="meta">
+                <span>Tech: ${project.technologies.join(', ')}</span>
+            </div>
+            <button class="btn btn-info btn-sm" style="margin-top:10px;">View Roadmap</button>
+        `;
+        card.querySelector('button').addEventListener('click', () => showProjectRoadmapModal(project));
+        list.appendChild(card);
+    });
+}
+
+function showProjectRoadmapModal(project) {
+    document.getElementById("modal-project-title").innerHTML = `
+        <span style="font-size:1.3rem;font-weight:600;color:#1976D2;">
+            <i class="fas fa-lightbulb" style="margin-right:6px;"></i>${project.title}
+        </span>
+    `;
+    document.getElementById("modal-project-summary").innerHTML = `
+        <div style="margin:10px 0 15px;color:#444;">${project.summary}</div>
+    `;
+    document.getElementById("modal-project-technologies").innerHTML = `
+        <div style="margin-bottom:8px;"><b>Required Technologies:</b> 
+            <span style="color:#388e3c;">${project.technologies.join(', ')}</span>
+        </div>
+    `;
+    document.getElementById("modal-project-extratechs").innerHTML = project.extraTechnologies && project.extraTechnologies.length
+      ? `<div style="margin-bottom:8px;"><b>You need to learn:</b> 
+            <span style="color:#e53935;">${project.extraTechnologies.join(', ')}</span>
+        </div>`
+      : `<div style="margin-bottom:8px;color:#388e3c;"><i class="fas fa-check"></i> You know all required technologies!</div>`;
+    document.getElementById("modal-project-roadmap").innerHTML = `
+        <div style="margin:12px 0;">
+            <b>Project Roadmap:</b>
+            <ol style="padding-left:22px;margin-top:6px;">
+                ${project.roadmap.map(step => `<li style="margin-bottom:6px;">${step}</li>`).join('')}
+            </ol>
+        </div>
+    `;
+    // Show modal
+    const modal = document.getElementById("project-roadmap-modal");
+    modal.classList.add('active');
+    modal.classList.remove('hidden');
+    modal.style.animation = "modalFadeIn 0.25s";
+}
+function closeProjectRoadmapModal() {
+    const modal = document.getElementById("project-roadmap-modal");
+    modal.classList.remove('active');
+    modal.classList.add('hidden');
+    modal.style.animation = "";
+}
+
+// ---- Admin Add Project ----
+document.getElementById("add-project-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!token || userRole !== 'ADMIN') {
+        showMessage("Only admins can add projects.");
+        return;
+    }
+    const title = document.getElementById("project-title").value.trim();
+    const summary = document.getElementById("project-summary").value.trim();
+    const technologies = document.getElementById("project-technologies").value.split(',').map(t => t.trim()).filter(Boolean);
+    const roadmap = document.getElementById("project-roadmap").value.split('\n').map(l => l.trim()).filter(Boolean);
+    try {
+        const response = await fetch(`${API}/projects`, {
+            method: "POST",
+            headers: authHeaders("application/json"),
+            body: JSON.stringify({ title, summary, technologies, roadmap })
+        });
+        await handleApiResponse(response, 'Failed to add project');
+        showMessage('Project added!', false);
+        document.getElementById("add-project-form").reset();
+
+        // --- Trigger project ideas refresh ---
+        const techInput = document.getElementById("project-tech-input")?.value.trim() || "";
+        const techs = techInput ? techInput.split(',').map(t => t.trim()).filter(Boolean) : [];
+        await loadSuggestedProjects(techs);
+
+    } catch (error) {
+        showMessage(error.message || 'Failed to add project.');
+    }
+});
+
+// ---- Admin Import Project from GitHub ----
+document.getElementById("import-project-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!token || userRole !== 'ADMIN') {
+        showMessage("Only admins can import projects.");
+        return;
+    }
+    const url = document.getElementById("github-url").value.trim();
+    try {
+        const response = await fetch(`${API}/projects/import`, {
+            method: "POST",
+            headers: authHeaders("application/json"),
+            body: JSON.stringify({ url })
+        });
+        await handleApiResponse(response, 'Failed to import project');
+        showMessage('Project imported from GitHub!', false);
+        document.getElementById("import-project-form").reset();
+
+        // --- Trigger project ideas refresh ---
+        const techInput = document.getElementById("project-tech-input")?.value.trim() || "";
+        const techs = techInput ? techInput.split(',').map(t => t.trim()).filter(Boolean) : [];
+        await loadSuggestedProjects(techs);
+
+    } catch (error) {
+        showMessage(error.message || 'Failed to import project.');
+    }
 });
 
 // ---- Event Listeners ----
@@ -459,6 +680,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // If articles tab, re-render grouped articles
             if (tabId === 'articles') {
                 renderGroupedArticles();
+            }
+            // If projects tab, refresh with user input
+            if (tabId === 'projects') {
+                const techInput = document.getElementById("project-tech-input")?.value.trim() || "";
+                const techs = techInput ? techInput.split(',').map(t => t.trim()).filter(Boolean) : [];
+                loadSuggestedProjects(techs);
             }
         });
     });
@@ -499,6 +726,31 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             showMessage(error.message || 'Registration failed. Please try again.');
         }
+    });
+
+    // Project Ideas tab: user tech input
+    document.getElementById("projects-tab-btn")?.addEventListener('click', () => {
+        document.getElementById("project-tech-input").value = "";
+        document.getElementById("suggested-projects-list").innerHTML =
+            "<div style='color:#888;padding:14px;'>Enter your technologies to get project ideas!</div>";
+    });
+
+    // Project tech form
+    document.getElementById("project-tech-form")?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const techInput = document.getElementById("project-tech-input").value.trim();
+        if (!techInput) {
+            showMessage("Please enter at least one technology.");
+            return;
+        }
+        const techs = techInput.split(',').map(t => t.trim()).filter(Boolean);
+        await loadSuggestedProjects(techs);
+    });
+
+    // Project roadmap modal close
+    document.getElementById("close-project-roadmap-modal")?.addEventListener('click', closeProjectRoadmapModal);
+    document.getElementById("project-roadmap-modal")?.addEventListener('click', function (e) {
+        if (e.target === this) closeProjectRoadmapModal();
     });
 
     // Logout
@@ -594,7 +846,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: "POST",
                 headers: {
                     'Authorization': `Bearer ${token}`
-                    // Do NOT set Content-Type header for multipart/form-data
                 },
                 body: formData
             });

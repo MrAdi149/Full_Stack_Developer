@@ -42,6 +42,10 @@
                     <i class="fas fa-file-pdf"></i>
                     <span>PDF Resources</span>
                 </div>
+                <div class="tab" id="projects-tab-btn" data-tab="projects">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Project Ideas</span>
+                </div>
                 <div class="tab" id="admin-tab-btn" data-tab="admin">
                     <i class="fas fa-lock"></i>
                     <span>Admin Panel</span>
@@ -153,6 +157,7 @@
                 </div>
 
                 <!-- Courses Tab -->
+                <!-- Courses Tab -->
                 <div class="tab-content" id="courses-tab">
                     <div class="section-header">
                         <h2><i class="fas fa-book"></i> Courses</h2>
@@ -191,6 +196,10 @@
                     </div>
 
                     <div id="courses-list" class="grid"></div>
+                    <!-- Beautiful Articles for course shown here when a course is clicked -->
+                    <div id="course-articles-in-courses-tab" class="hidden">
+                        <!-- Filled dynamically by JS (see below for structure) -->
+                    </div>
                 </div>
 
                 <!-- Articles Tab -->
@@ -231,6 +240,25 @@
                     </div>
 
                     <div id="articles-grouped-list"></div>
+                    
+                    <!-- Article Modal (only for articles tab) -->
+                    <div id="article-modal" class="modal">
+                        <div class="modal-content">
+                            <span class="close-modal" id="close-article-modal">&times;</span>
+                            <h3 id="modal-article-title"></h3>
+                            <div id="modal-article-meta"></div>
+                            <p id="modal-article-content"></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Course Articles Modal (only for article tab, not for courses tab) -->
+                    <div id="course-articles-modal" class="modal">
+                        <div class="modal-content" style="max-width:700px;">
+                            <span class="close-modal" id="close-course-articles-modal">&times;</span>
+                            <h3 id="modal-course-title"></h3>
+                            <div id="modal-course-articles-list"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- PDFs Tab -->
@@ -268,6 +296,43 @@
                     <div id="pdfs-list" class="grid"></div>
                 </div>
 
+                <!-- Project Ideas Tab -->
+                <div class="tab-content" id="projects-tab">
+                    <div class="section-header">
+                        <h2><i class="fas fa-lightbulb"></i> Project Ideas For You</h2>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Tell us what technologies you know</div>
+                        <div class="card-body">
+                            <form id="project-tech-form">
+                                <div class="form-group">
+                                    <label for="project-tech-input">Technologies (comma separated)</label>
+                                    <input type="text" id="project-tech-input" class="form-control input-lg"
+                                        placeholder="e.g. Java, Spring Boot, React, HTML, CSS" required>
+                                </div>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-search"></i> Find Projects
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="section-header">
+                        <h2><i class="fas fa-list"></i> Suggested Projects</h2>
+                    </div>
+                    <div id="suggested-projects-list" class="grid"></div>
+                    <!-- Project Roadmap Modal -->
+                    <div id="project-roadmap-modal" class="modal">
+                        <div class="modal-content" style="max-width:650px;">
+                            <span class="close-modal" id="close-project-roadmap-modal">&times;</span>
+                            <h3 id="modal-project-title"></h3>
+                            <div id="modal-project-summary"></div>
+                            <div id="modal-project-technologies"></div>
+                            <div id="modal-project-extratechs"></div>
+                            <div id="modal-project-roadmap"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Admin Section -->
                 <div class="tab-content" id="admin-tab">
                     <div class="admin-section">
@@ -302,25 +367,52 @@
                                 <div id="reported-list" class="grid"></div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Article Modal -->
-                <div id="article-modal" class="modal">
-                    <div class="modal-content">
-                        <span class="close-modal" id="close-article-modal">&times;</span>
-                        <h3 id="modal-article-title"></h3>
-                        <div id="modal-article-meta"></div>
-                        <p id="modal-article-content"></p>
-                    </div>
-                </div>
-
-                <!-- Course Articles Modal -->
-                <div id="course-articles-modal" class="modal">
-                    <div class="modal-content" style="max-width:700px;">
-                        <span class="close-modal" id="close-course-articles-modal">&times;</span>
-                        <h3 id="modal-course-title"></h3>
-                        <div id="modal-course-articles-list"></div>
+                        <div class="section-header">
+                            <h2><i class="fas fa-lightbulb"></i> Add Project Idea (Admin)</h2>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">Manual Entry</div>
+                            <div class="card-body">
+                                <form id="add-project-form">
+                                    <div class="form-group">
+                                        <label for="project-title">Project Title</label>
+                                        <input type="text" id="project-title" class="form-control input-lg" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="project-summary">Summary</label>
+                                        <textarea id="project-summary" class="form-control" required></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="project-technologies">Technologies (comma separated)</label>
+                                        <input type="text" id="project-technologies" class="form-control input-lg"
+                                            required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="project-roadmap">Roadmap Steps (one per line)</label>
+                                        <textarea id="project-roadmap" class="form-control" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-plus-circle"></i> Add Project
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">Import from GitHub</div>
+                            <div class="card-body">
+                                <form id="import-project-form">
+                                    <div class="form-group">
+                                        <label for="github-url">GitHub Repo URL</label>
+                                        <input type="text" id="github-url" class="form-control input-lg"
+                                            placeholder="https://github.com/owner/repo" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-info">
+                                        <i class="fab fa-github"></i> Import Project
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
